@@ -53,7 +53,8 @@ import { toast } from "sonner";
 interface Item {
   id: number;
   name: string;
-  category: string;
+  category_id: number;
+  category: { id: number; name: string };
   quantity: number;
   price: number;
   status: string;
@@ -88,7 +89,7 @@ interface Props {
   items: Item[];
   pagination?: Pagination;
   filters: Filters;
-  categories: string[];
+  categories: { id: number; name: string }[];
   can?: {
     create: boolean;
     edit: boolean;
@@ -103,12 +104,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const initialFormState = {
   name: '',
-  category: '',
-  quantity: '',
-  price: '',
+  category_id: 0,
+  quantity: 0,
+  price: 0,
   status: 'In Stock' as string,
 };
-
 // Per page options
 const perPageOptions = [10, 20, 50, 100];
 
@@ -206,13 +206,18 @@ export default function Inventory({
     });
   };
 
+  const getCategoryId = (value: string): number | undefined => {
+    return value === 'all' ? undefined : parseInt(value);
+  };
+
+
   // Apply all filters
   const applyFilters = () => {
     setIsLoading(true);
 
     const params = {
       search: searchTerm,
-      category: categoryFilter !== 'all' ? categoryFilter : undefined,
+      category: categoryFilter,
       status: statusFilter !== 'all' ? statusFilter : undefined,
       minPrice: minPriceFilter || undefined,
       maxPrice: maxPriceFilter || undefined,
@@ -263,7 +268,7 @@ export default function Inventory({
         minPrice: minPriceFilter,
         maxPrice: maxPriceFilter,
         perPage: newPerPage,
-        page: 1, // Reset to first page when changing items per page
+        page: 1,
       },
       preserveState: true,
       preserveScroll: true,
@@ -271,13 +276,12 @@ export default function Inventory({
   };
 
   const handleAddItem = () => {
-    const formData = {
+    setData({
       ...data,
-      quantity: String(Number(data.quantity)),
-      price: String(Number(data.price)),
-    };
-
-    setData(formData);
+      category_id: Number(data.category_id),
+      quantity: Number(data.quantity),
+      price: Number(data.price),
+    });
 
     post('/inventory', {
       onSuccess: () => {
@@ -288,13 +292,14 @@ export default function Inventory({
     });
   };
 
+
   const handleEditItem = (item: Item) => {
     setCurrentItem(item);
     setData({
       name: item.name,
-      category: item.category,
-      quantity: String(item.quantity),
-      price: String(item.price),
+      category_id: item.category_id,
+      quantity: item.quantity,
+      price: item.price,
       status: item.status,
     });
     setIsEditDialogOpen(true);
@@ -308,13 +313,12 @@ export default function Inventory({
   const handleUpdateItem = () => {
     if (!currentItem) return;
 
-    const formData = {
+    setData({
       ...data,
-      quantity: String(Number(data.quantity)),
-      price: String(Number(data.price)),
-    };
-
-    setData(formData);
+      category_id: Number(data.category_id),
+      quantity: Number(data.quantity),
+      price: Number(data.price),
+    });
 
     put(`/inventory/${currentItem.id}`, {
       onSuccess: () => {
@@ -324,6 +328,8 @@ export default function Inventory({
       },
     });
   };
+
+
 
   const handleDeleteItem = (id: number) => {
     setItemToDelete(id);
@@ -359,7 +365,7 @@ export default function Inventory({
 
     const currentPage = pagination.current_page;
     const lastPage = pagination.last_page;
-    const delta = 2; // Number of pages to show before and after current page
+    const delta = 2;
 
     let range = [];
 
@@ -441,13 +447,22 @@ export default function Inventory({
                         </div>
                         <div className="grid gap-2">
                           <Label htmlFor="category">Category</Label>
-                          <Input
-                            id="category"
-                            value={data.category}
-                            onChange={(e) => setData('category', e.target.value)}
-                            placeholder="Enter category"
-                          />
-                          {errors.category && <p className="text-sm text-red-500">{errors.category}</p>}
+                          <Select
+                            value={data.category_id?.toString() || ''}
+                            onValueChange={(value) => setData('category_id', parseInt(value))}
+                          >
+                            <SelectTrigger id="category">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categories.map(category => (
+                                <SelectItem key={category.id} value={String(category.id)}>
+                                  {category.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {errors.category_id && <p className="text-sm text-red-500">{errors.category_id}</p>}
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div className="grid gap-2">
@@ -459,7 +474,7 @@ export default function Inventory({
                               className="w-full [&::-webkit-inner-spin-button]:appearance-none"
                               value={data.quantity}
                               placeholder="0"
-                              onChange={(e) => setData('quantity', e.target.value)}
+                              onChange={(e) => setData('quantity', parseInt(e.target.value || '0'))}
                             />
                             {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
                           </div>
@@ -471,7 +486,7 @@ export default function Inventory({
                               min="0"
                               className="w-full [&::-webkit-inner-spin-button]:appearance-none"
                               value={data.price}
-                              onChange={(e) => setData('price', e.target.value)}
+                              onChange={(e) => setData('price', parseInt(e.target.value || '0'))}
                               placeholder="0"
                             />
                             {errors.price && <p className="text-sm text-red-500">{errors.price}</p>}
@@ -577,10 +592,11 @@ export default function Inventory({
                                 <SelectContent>
                                   <SelectItem value="all">All categories</SelectItem>
                                   {categories.map(category => (
-                                    <SelectItem key={category} value={category}>
-                                      {category}
+                                    <SelectItem key={category.id} value={String(category.id)}>
+                                      {category.name}
                                     </SelectItem>
                                   ))}
+
                                 </SelectContent>
                               </Select>
                             </div>
@@ -678,7 +694,7 @@ export default function Inventory({
                     items.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">{item.name}</TableCell>
-                        <TableCell>{item.category}</TableCell>
+                        <TableCell>{item.category.name}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell>{formatToIDR(item.price)}</TableCell>
                         <TableCell>
@@ -960,7 +976,7 @@ export default function Inventory({
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Category</p>
-                    <p className="text-lg">{currentItem.category}</p>
+                    <p className="text-lg">{currentItem.category.name}</p>
                   </div>
                 </div>
 
@@ -1076,12 +1092,22 @@ export default function Inventory({
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="edit-category">Category</Label>
-                  <Input
-                    id="edit-category"
-                    value={data.category}
-                    onChange={(e) => setData('category', e.target.value)}
-                  />
-                  {errors.category && <p className="text-sm text-red-500">{errors.category}</p>}
+                  <Select
+                    value={data.category_id.toString()}
+                    onValueChange={(value) => setData('category_id', parseInt(value))}
+                  >
+                    <SelectTrigger id="edit-category">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map(category => (
+                        <SelectItem key={category.id} value={String(category.id)}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.category_id && <p className="text-sm text-red-500">{errors.category_id}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
@@ -1093,7 +1119,7 @@ export default function Inventory({
                       className="w-full [&::-webkit-inner-spin-button]:appearance-none"
                       value={data.quantity}
                       placeholder="0"
-                      onChange={(e) => setData('quantity', e.target.value)}
+                      onChange={(e) => setData('quantity', parseInt(e.target.value || '0'))}
                     />
                     {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
                   </div>
@@ -1106,7 +1132,7 @@ export default function Inventory({
                       className="w-full [&::-webkit-inner-spin-button]:appearance-none"
                       value={data.price}
                       placeholder="0"
-                      onChange={(e) => setData('price', e.target.value)}
+                      onChange={(e) => setData('price', parseInt(e.target.value || '0'))}
                     />
                     {errors.price && <p className="text-sm text-red-500">{errors.price}</p>}
                   </div>

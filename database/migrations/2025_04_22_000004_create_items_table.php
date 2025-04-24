@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('category');
+            $table->foreignId('category_id')
+                ->constrained('categories')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
             $table->integer('quantity')->default(0);
             $table->decimal('price', 10, 2)->default(0);
             $table->enum('status', ['In Stock', 'Low Stock', 'Out of Stock'])->default('In Stock');

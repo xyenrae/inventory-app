@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Gate;
+
+use Illuminate\Routing\Controller;
 
 class InventoryController extends Controller
 {
@@ -16,7 +18,6 @@ class InventoryController extends Controller
 
     public function __construct()
     {
-        // Hanya middleware auth, permission dikelola lewat policy
         $this->middleware('auth');
     }
 
@@ -30,7 +31,7 @@ class InventoryController extends Controller
         $validated = $request->validate([
             'perPage' => 'sometimes|integer|min:1|max:100',
             'search' => 'nullable|string|max:255',
-            'category' => 'sometimes|string',
+            'category' => 'sometimes|exists:categories,id',
             'status' => 'sometimes|string',
             'minPrice' => 'sometimes|numeric|min:0',
             'maxPrice' => 'sometimes|numeric|min:0',
@@ -44,17 +45,19 @@ class InventoryController extends Controller
         $minPrice = $validated['minPrice'] ?? null;
         $maxPrice = $validated['maxPrice'] ?? null;
 
-        $query = Item::query();
+        $query = Item::query()->with('category');
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('category', 'like', "%{$search}%");
+                    ->orWhereHas('category', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
         if ($category !== 'all') {
-            $query->where('category', $category);
+            $query->where('category_id', $category);
         }
 
         if ($status !== 'all') {
@@ -74,7 +77,7 @@ class InventoryController extends Controller
             ->withQueryString();
 
         return Inertia::render('inventory', [
-            'items' => $items->items(), // Access the items array
+            'items' => $items->items(),
             'pagination' => [
                 'current_page' => $items->currentPage(),
                 'per_page' => $items->perPage(),
@@ -85,7 +88,10 @@ class InventoryController extends Controller
                 'links' => $items->linkCollection()->toArray()
             ],
             'filters' => $request->only(['search', 'category', 'status', 'minPrice', 'maxPrice', 'perPage']),
-            'categories' => Item::distinct()->pluck('category'),
+            'categories' => Category::all()->map(fn($cat) => [
+                'id' => $cat->id,
+                'name' => $cat->name
+            ]),
             'can' => [
                 'create' => $request->user()->can('create', Item::class),
                 'edit' => Gate::forUser($request->user())->check('update', new Item()),
@@ -94,26 +100,22 @@ class InventoryController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new item.
-     */
     public function create()
     {
         $this->authorize('create', Item::class);
 
-        return Inertia::render('Inventory/Create');
+        return Inertia::render('inventory', [
+            'categories' => Category::select('id', 'name')->get(),
+        ]);
     }
 
-    /**
-     * Store a newly created item in storage.
-     */
     public function store(Request $request)
     {
         $this->authorize('create', Item::class);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'category' => 'required|string|max:255',
+            'category_id' => 'required|integer|exists:categories,id',
             'quantity' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
             'status' => 'required|string|in:In Stock,Low Stock,Out of Stock',
@@ -121,63 +123,52 @@ class InventoryController extends Controller
 
         Item::create($validated);
 
-        return redirect()->route('inventory.index')
+        return redirect()->back()
             ->with('success', 'Item created successfully');
     }
 
-    /**
-     * Display the specified item.
-     */
-    public function show(Item $item)
+    public function show(Item $inventory)
     {
-        $this->authorize('view', $item);
+        $this->authorize('view', $inventory);
 
-        return response()->json($item);
+        return response()->json($inventory->load('category'));
     }
 
-    /**
-     * Show the form for editing the specified item.
-     */
-    public function edit(Item $item)
+    public function edit(Item $inventory)
     {
-        $this->authorize('update', $item);
+        $this->authorize('update', $inventory);
 
-        return Inertia::render('Inventory/Edit', [
-            'item' => $item
+        return Inertia::render('inventory', [
+            'item' => $inventory->load('category'),
+            'categories' => Category::select('id', 'name')->get(),
         ]);
     }
 
-    /**
-     * Update the specified item in storage.
-     */
-    public function update(Request $request, Item $item)
+    public function update(Request $request, Item $inventory)
     {
-        $this->authorize('update', $item);
+        $this->authorize('update', $inventory);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'category' => 'required|string|max:255',
+            'category_id' => 'required|integer|exists:categories,id',
             'quantity' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
             'status' => 'required|string|in:In Stock,Low Stock,Out of Stock',
         ]);
 
-        $item->update($validated);
+        $inventory->update($validated);
 
         return redirect()->back()
             ->with('success', 'Item updated successfully');
     }
 
-    /**
-     * Remove the specified item from storage.
-     */
-    public function destroy(Item $item)
+    public function destroy(Item $inventory)
     {
-        $this->authorize('delete', $item);
+        $this->authorize('delete', $inventory);
 
-        $item->delete();
+        $inventory->delete();
 
-        return redirect()->route('inventory.index')
+        return redirect()->back()
             ->with('success', 'Item deleted successfully');
     }
 }

@@ -12,58 +12,77 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Buat permissions
+        $this->createPermissions();
+        $this->createRolesWithPermissions();
+        $this->createUsers();
+    }
+
+    protected function createPermissions(): void
+    {
         $permissions = [
+            // Items
             'view items',
             'create items',
             'edit items',
             'delete items',
+
+            // Categories
+            'view categories',
+            'create categories',
+            'edit categories',
+            'delete categories',
         ];
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => 'web',
+            ]);
         }
+    }
 
-        // Role Admin
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
-        $adminRole->givePermissionTo($permissions);
+    protected function createRolesWithPermissions(): void
+    {
+        // Admin gets all permissions
+        $adminPermissions = Permission::all();
+        Role::firstOrCreate(['name' => 'admin'])
+            ->syncPermissions($adminPermissions);
 
-        // Role Staff
-        $staffRole = Role::firstOrCreate(['name' => 'staff']);
-        $staffRole->givePermissionTo(['view items', 'create items', 'edit items']);
+        // Staff gets CRU for items & categories
+        $staffPermissions = [
+            'view items',
+            'create items',
+            'edit items',
+            'view categories',
+            'create categories',
+            'edit categories',
+        ];
+        Role::firstOrCreate(['name' => 'staff'])
+            ->syncPermissions($staffPermissions);
 
-        // Role Viewer
-        $viewerRole = Role::firstOrCreate(['name' => 'viewer']);
-        $viewerRole->givePermissionTo('view items');
+        // Viewer only views items
+        $viewerPermissions = ['view items'];
+        Role::firstOrCreate(['name' => 'viewer'])
+            ->syncPermissions($viewerPermissions);
+    }
 
-        // Admin User
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
+    protected function createUsers(): void
+    {
+        $this->createUser('Admin User', 'admin@example.com', 'admin');
+        $this->createUser('Staff User', 'staff@example.com', 'staff');
+        $this->createUser('Viewer User', 'viewer@example.com', 'viewer');
+    }
+
+    protected function createUser(string $name, string $email, string $role): void
+    {
+        $user = User::firstOrCreate(
+            ['email' => $email],
             [
-                'name' => 'Admin User',
+                'name' => $name,
                 'password' => Hash::make('password'),
             ]
         );
-        $admin->assignRole($adminRole);
 
-        // Staff User
-        $staff = User::firstOrCreate(
-            ['email' => 'staff@example.com'],
-            [
-                'name' => 'Staff User',
-                'password' => Hash::make('password'),
-            ]
-        );
-        $staff->assignRole($staffRole);
-
-        // Viewer User
-        $viewer = User::firstOrCreate(
-            ['email' => 'viewer@example.com'],
-            [
-                'name' => 'Viewer User',
-                'password' => Hash::make('password'),
-            ]
-        );
-        $viewer->assignRole($viewerRole);
+        $user->assignRole($role);
     }
 }
