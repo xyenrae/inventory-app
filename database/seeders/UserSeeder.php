@@ -37,6 +37,9 @@ class UserSeeder extends Seeder
             'create users',
             'edit users',
             'delete users',
+
+            // Activity Logs
+            'view activity',
         ];
 
         foreach ($permissions as $permission) {
@@ -69,6 +72,7 @@ class UserSeeder extends Seeder
         // Viewer: read-only access to items
         $viewerPermissions = [
             'view items',
+            'view categories',
         ];
         Role::firstOrCreate(['name' => 'viewer'])
             ->syncPermissions($viewerPermissions);

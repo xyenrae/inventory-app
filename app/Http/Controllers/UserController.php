@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -124,16 +125,38 @@ class UserController extends Controller
 
         $validated = $request->validate($rules);
 
-        // Prevent current user from changing their own role
+        // Cegah pengguna mengganti rolenya sendiri
         if ($user->id === Auth::id() && !$user->hasRole($validated['role'])) {
             return redirect()->back()->with('error', 'You cannot change your own role.');
         }
+
+        // Cek apakah role berubah
+        $oldRoles = $user->getRoleNames()->toArray();
+        $roleChanged = !in_array($validated['role'], $oldRoles) || count($oldRoles) > 1;
 
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => $request->filled('password') ? Hash::make($validated['password']) : $user->password,
         ]);
+
+        if ($roleChanged) {
+            ActivityLog::create([
+                'log_name' => 'user',
+                'description' => "Changed role for user '{$user->name}' from '" . implode(', ', $oldRoles) . "' to '{$validated['role']}'",
+                'subject_type' => get_class($user),
+                'subject_id' => $user->id,
+                'causer_type' => get_class(Auth::user()),
+                'causer_id' => Auth::id(),
+                'properties' => [
+                    'old_roles' => $oldRoles,
+                    'new_role' => $validated['role'],
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'user_email' => $user->email
+                ],
+            ]);
+        }
 
         $user->syncRoles([$validated['role']]);
 

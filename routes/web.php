@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
@@ -23,13 +24,14 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Halaman utama
     Route::get('/dashboard', fn() => Inertia::render('dashboard'))->name('dashboard');
     Route::get('/inventory', fn() => Inertia::render('inventory'))->name('inventory');
     Route::get('/categories', fn() => Inertia::render('categories'))->name('categories');
     Route::get('/users', fn() => Inertia::render('users'))->name('user');
-    Route::get('/logs', fn() => Inertia::render('activitylogs'))->name('logs');
+    Route::get('/activitylogs', fn() => Inertia::render('activitylogs'))->name('activity');
+
 
     // Profile Management
     // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -40,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('inventory', InventoryController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('users', UserController::class);
+    Route::resource('activitylogs', ActivityLogController::class);
 
     // Role-based dashboards
     Route::middleware('role:admin')->group(function () {

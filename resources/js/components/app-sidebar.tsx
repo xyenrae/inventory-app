@@ -46,7 +46,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: 'Activity Logs',
-    href: '/logs',
+    href: '/activitylogs',
     icon: Activity,
   },
 ];
