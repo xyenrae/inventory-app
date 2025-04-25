@@ -3,6 +3,7 @@
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,7 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', fn() => Inertia::render('dashboard'))->name('dashboard');
     Route::get('/inventory', fn() => Inertia::render('inventory'))->name('inventory');
     Route::get('/categories', fn() => Inertia::render('categories'))->name('categories');
-    Route::get('/users', fn() => Inertia::render('users'))->name('users');
+    Route::get('/users', fn() => Inertia::render('users'))->name('user');
     Route::get('/logs', fn() => Inertia::render('activitylogs'))->name('logs');
 
     // Profile Management
@@ -38,6 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Inventory dan Category resource routes
     Route::resource('inventory', InventoryController::class);
     Route::resource('categories', CategoryController::class);
+    Route::resource('users', UserController::class);
 
     // Role-based dashboards
     Route::middleware('role:admin')->group(function () {

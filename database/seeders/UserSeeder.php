@@ -31,6 +31,12 @@ class UserSeeder extends Seeder
             'create categories',
             'edit categories',
             'delete categories',
+
+            // Users
+            'view users',
+            'create users',
+            'edit users',
+            'delete users',
         ];
 
         foreach ($permissions as $permission) {
@@ -48,7 +54,7 @@ class UserSeeder extends Seeder
         Role::firstOrCreate(['name' => 'admin'])
             ->syncPermissions($adminPermissions);
 
-        // Staff gets CRU for items & categories
+        // Staff: CRUD for items & categories, but no access to users
         $staffPermissions = [
             'view items',
             'create items',
@@ -60,8 +66,10 @@ class UserSeeder extends Seeder
         Role::firstOrCreate(['name' => 'staff'])
             ->syncPermissions($staffPermissions);
 
-        // Viewer only views items
-        $viewerPermissions = ['view items'];
+        // Viewer: read-only access to items
+        $viewerPermissions = [
+            'view items',
+        ];
         Role::firstOrCreate(['name' => 'viewer'])
             ->syncPermissions($viewerPermissions);
     }
@@ -83,6 +91,6 @@ class UserSeeder extends Seeder
             ]
         );
 
-        $user->assignRole($role);
+        $user->syncRoles([$role]);
     }
 }
