@@ -5,7 +5,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   LayoutGrid,
-  Users,
   Package,
   FolderOpen,
   AlertTriangle,
@@ -78,18 +77,12 @@ export default function Dashboard({ stats, categoryDistribution, recentActivitie
         {/* Main Metrics */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
           <DashboardMetricCard
-            title="Total Users"
-            value={stats.users}
-            description="Registered users"
-            icon={<Users className="h-6 w-6 text-blue-600" />}
-            color="bg-blue-50"
-          />
-          <DashboardMetricCard
             title="Total Items"
             value={stats.items}
             description="Inventory items"
             icon={<Package className="h-6 w-6 text-green-600" />}
             color="bg-green-50"
+            href="/inventory"
           />
           <DashboardMetricCard
             title="Categories"
@@ -97,19 +90,29 @@ export default function Dashboard({ stats, categoryDistribution, recentActivitie
             description="Item categories"
             icon={<FolderOpen className="h-6 w-6 text-purple-600" />}
             color="bg-purple-50"
+            href="/categories"
           />
           <DashboardMetricCard
-            title="Low Stock Alert"
-            value={stats.lowStockItems + stats.outOfStockItems}
-            description={`${stats.outOfStockItems} out of stock`}
-            icon={<AlertTriangle className="h-6 w-6 text-orange-600" />}
-            color="bg-orange-50"
+            title="Low Stock"
+            value={stats.lowStockItems}
+            description="Items running low"
+            icon={<AlertTriangle className="h-6 w-6 text-amber-600" />}
+            color="bg-amber-50"
+            href="/inventory?page=1&status=Low%20Stock"
+          />
+          <DashboardMetricCard
+            title="Out of Stock"
+            value={stats.outOfStockItems}
+            description="Items to reorder"
+            icon={<AlertTriangle className="h-6 w-6 text-red-600" />}
+            color="bg-red-50"
+            href="/inventory?page=1&status=Out%20of%20Stock"
           />
         </div>
 
         {/* Tabs for Charts and Activity */}
         <Tabs defaultValue="overview" className="mb-6">
-          <TabsList className="mb-4 p-1  rounded-lg">
+          <TabsList className="mb-4 p-1 rounded-lg">
             <TabsTrigger
               value="overview"
               className="transition-all cursor-pointer duration-200 hover:bg-white/90 dark:hover:bg-gray-700/90 data-[state=active]:shadow-sm"
