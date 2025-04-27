@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SetStateAction } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { Search, Filter, Eye, Clock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, User, Package, Folder, AlertCircle, HardDrive } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
@@ -28,50 +28,8 @@ import {
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { ActivityLogDialog } from '@/components/activity-log-dialog';
+import { ActivityLog, Filters, Pagination } from '@/types/activitylog';
 
-interface ActivityLog {
-  id: number;
-  log_name: string;
-  description: string;
-  subject_type: string | null;
-  subject_id: number | null;
-  causer_type: string | null;
-  causer_id: number | null;
-  properties: {
-    user_agent?: string;
-    attributes?: Record<string, any>;
-    old?: Record<string, any>;
-  };
-  created_at: string;
-  causer?: {
-    id: number;
-    name: string;
-    email: string;
-  } | null;
-}
-
-interface Pagination {
-  current_page: number;
-  per_page: number;
-  total: number;
-  last_page: number;
-  from: number;
-  to: number;
-  links: Array<{
-    url: string | null;
-    label: string;
-    active: boolean;
-  }>;
-}
-
-interface Filters {
-  search: string;
-  log_name: string;
-  start_date: string;
-  end_date: string;
-  causer_id: string;
-  perPage: number;
-}
 
 interface Props {
   activity_logs: ActivityLog[];
@@ -227,7 +185,7 @@ export default function ActivityLogs({
     });
   };
 
-  const handleViewLog = (log) => {
+  const handleViewLog = (log: SetStateAction<ActivityLog | null>) => {
     setCurrentLog(log);
     setViewDialogOpen(true);
   };
@@ -367,10 +325,12 @@ export default function ActivityLogs({
           {canViewActivityLogs
             ? <>
               <CardHeader>
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                   <CardTitle>System Activity History</CardTitle>
-                  <div className="flex space-x-2">
-                    <div className="relative w-64">
+
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 w-full md:w-auto">
+                    {/* Search input */}
+                    <div className="relative w-full md:w-64">
                       <Input
                         placeholder="Search activity logs..."
                         value={searchTerm}
@@ -380,49 +340,49 @@ export default function ActivityLogs({
                       <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     </div>
 
+                    {/* Filter button */}
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
                             <PopoverTrigger asChild>
-                              <Button variant="outline" className="cursor-pointer">
+                              <Button variant="outline" className="relative">
                                 <Filter className="h-4 w-4 mr-2" />
                                 Filter
                                 {countActiveFilters() > 0 && (
-                                  <Badge className="ml-2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
+                                  <Badge className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
                                     <span className="text-xs">{countActiveFilters()}</span>
                                   </Badge>
                                 )}
                               </Button>
                             </PopoverTrigger>
+
+                            {/* Filter Popover Content */}
                             <PopoverContent className="w-80">
                               <div className="space-y-4">
+                                {/* Header Filter */}
                                 <div className="flex justify-between items-center">
                                   <h4 className="font-medium">Filters</h4>
                                   <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={resetFilters}
-                                    className="h-8 px-2 text-xs cursor-pointer"
+                                    className="h-8 px-2 text-xs"
                                   >
                                     Reset filters
                                   </Button>
                                 </div>
 
+                                {/* Log Type */}
                                 <div className="space-y-2">
                                   <Label htmlFor="log-name-filter">Log Type</Label>
-                                  <Select
-                                    value={logNameFilter}
-                                    onValueChange={(value) => {
-                                      setLogNameFilter(value);
-                                    }}
-                                  >
+                                  <Select value={logNameFilter} onValueChange={setLogNameFilter}>
                                     <SelectTrigger id="log-name-filter">
                                       <SelectValue placeholder="All logs" />
                                     </SelectTrigger>
                                     <SelectContent>
                                       <SelectItem value="all">All logs</SelectItem>
-                                      {log_names.map(logName => (
+                                      {log_names.map((logName) => (
                                         <SelectItem key={logName} value={logName}>
                                           {logName.charAt(0).toUpperCase() + logName.slice(1)}
                                         </SelectItem>
@@ -431,20 +391,16 @@ export default function ActivityLogs({
                                   </Select>
                                 </div>
 
+                                {/* User Filter */}
                                 <div className="space-y-2">
                                   <Label htmlFor="user-filter">User</Label>
-                                  <Select
-                                    value={causerFilter}
-                                    onValueChange={(value) => {
-                                      setCauserFilter(value);
-                                    }}
-                                  >
+                                  <Select value={causerFilter} onValueChange={setCauserFilter}>
                                     <SelectTrigger id="user-filter">
                                       <SelectValue placeholder="All users" />
                                     </SelectTrigger>
                                     <SelectContent>
                                       <SelectItem value="all">All users</SelectItem>
-                                      {users.map(user => (
+                                      {users.map((user) => (
                                         <SelectItem key={user.id} value={user.id.toString()}>
                                           {user.name}
                                         </SelectItem>
@@ -453,6 +409,7 @@ export default function ActivityLogs({
                                   </Select>
                                 </div>
 
+                                {/* Date Range */}
                                 <div className="grid grid-cols-2 gap-2">
                                   <div className="space-y-2">
                                     <Label htmlFor="start-date">Start Date</Label>
@@ -474,8 +431,9 @@ export default function ActivityLogs({
                                   </div>
                                 </div>
 
+                                {/* Apply Filters */}
                                 <Button
-                                  className="w-full cursor-pointer mt-4"
+                                  className="w-full mt-4"
                                   onClick={() => {
                                     applyFilters();
                                     setIsFilterOpen(false);

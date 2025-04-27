@@ -50,35 +50,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from "sonner";
 import { Textarea } from '@/components/ui/textarea';
-
-interface Category {
-  id: number;
-  name: string;
-  description: string | null;
-  status: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface Pagination {
-  current_page: number;
-  per_page: number;
-  total: number;
-  last_page: number;
-  from: number;
-  to: number;
-  links: Array<{
-    url: string | null;
-    label: string;
-    active: boolean;
-  }>;
-}
-
-interface Filters {
-  search: string;
-  status: string;
-  perPage: number;
-}
+import { Pagination, Filters, Category, CategoryForm } from '@/types/category';
 
 interface Props {
   categories: Category[];
@@ -89,12 +61,6 @@ interface Props {
     edit: boolean;
     delete: boolean;
   };
-}
-
-interface CategoryForm {
-  name: string;
-  description: string;
-  status: string;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -449,10 +415,12 @@ export default function Categories({
 
         <Card>
           <CardHeader>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
               <CardTitle>All Categories</CardTitle>
-              <div className="flex space-x-2">
-                <div className="relative w-64">
+
+              <div className="flex flex-col md:flex-row md:items-center gap-2 w-full md:w-auto">
+                {/* Search input */}
+                <div className="relative w-full md:w-64">
                   <Input
                     placeholder="Search categories..."
                     value={searchTerm}
@@ -462,21 +430,24 @@ export default function Categories({
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 </div>
 
+                {/* Filter button */}
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
                         <PopoverTrigger asChild>
-                          <Button variant="outline" className="cursor-pointer">
+                          <Button variant="outline" className="relative">
                             <Filter className="h-4 w-4 mr-2" />
                             Filter
                             {statusFilter && statusFilter !== 'all' && (
-                              <Badge className="ml-2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
+                              <Badge className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
                                 <span className="text-xs">1</span>
                               </Badge>
                             )}
                           </Button>
                         </PopoverTrigger>
+
+                        {/* Filter popover */}
                         <PopoverContent className="w-80">
                           <div className="space-y-4">
                             <div className="flex justify-between items-center">
@@ -485,26 +456,25 @@ export default function Categories({
                                 variant="ghost"
                                 size="sm"
                                 onClick={resetFilters}
-                                className="h-8 px-2 text-xs cursor-pointer"
+                                className="h-8 px-2 text-xs"
                               >
                                 Reset filters
                               </Button>
                             </div>
 
+                            {/* Status filter */}
                             <div className="space-y-2">
                               <Label htmlFor="status-filter">Status</Label>
                               <Select
                                 value={statusFilter}
-                                onValueChange={(value) => {
-                                  setStatusFilter(value);
-                                }}
+                                onValueChange={setStatusFilter}
                               >
                                 <SelectTrigger id="status-filter">
                                   <SelectValue placeholder="All statuses" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="all">All statuses</SelectItem>
-                                  {statusOptions.map(option => (
+                                  {statusOptions.map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
                                       {option.label}
                                     </SelectItem>
@@ -513,8 +483,9 @@ export default function Categories({
                               </Select>
                             </div>
 
+                            {/* Apply button */}
                             <Button
-                              className="w-full cursor-pointer mt-4"
+                              className="w-full mt-4"
                               onClick={() => {
                                 applyFilters();
                                 setIsFilterOpen(false);
@@ -534,6 +505,7 @@ export default function Categories({
               </div>
             </div>
           </CardHeader>
+
           <CardContent>
             <div className="relative">
               {isLoading && (

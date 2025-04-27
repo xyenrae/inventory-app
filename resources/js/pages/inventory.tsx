@@ -49,41 +49,8 @@ import {
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from "sonner";
+import { Item, Filters, Pagination } from '@/types/inventory';
 
-interface Item {
-  id: number;
-  name: string;
-  category_id: number;
-  category: { id: number; name: string };
-  quantity: number;
-  price: number;
-  status: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface Pagination {
-  current_page: number;
-  per_page: number;
-  total: number;
-  last_page: number;
-  from: number;
-  to: number;
-  links: Array<{
-    url: string | null;
-    label: string;
-    active: boolean;
-  }>;
-}
-
-interface Filters {
-  search: string;
-  category: string;
-  status: string;
-  minPrice: string;
-  maxPrice: string;
-  perPage: number;
-}
 
 interface Props {
   items: Item[];
@@ -206,11 +173,6 @@ export default function Inventory({
       }
     });
   };
-
-  const getCategoryId = (value: string): number | undefined => {
-    return value === 'all' ? undefined : parseInt(value);
-  };
-
 
   // Apply all filters
   const applyFilters = () => {
@@ -502,10 +464,12 @@ export default function Inventory({
 
         <Card>
           <CardHeader>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
               <CardTitle>All Items</CardTitle>
-              <div className="flex space-x-2">
-                <div className="relative w-64">
+
+              <div className="flex flex-col md:flex-row md:items-center gap-2 w-full md:w-auto">
+                {/* Search input */}
+                <div className="relative w-full md:w-64">
                   <Input
                     placeholder="Search items..."
                     value={searchTerm}
@@ -515,16 +479,17 @@ export default function Inventory({
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 </div>
 
+                {/* Filter button with badge */}
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
                         <PopoverTrigger asChild>
-                          <Button variant="outline" className="cursor-pointer">
+                          <Button variant="outline" className="relative">
                             <Filter className="h-4 w-4 mr-2" />
                             Filter
                             {((categoryFilter && categoryFilter !== 'all') || (statusFilter && statusFilter !== 'all') || minPriceFilter || maxPriceFilter) && (
-                              <Badge className="ml-2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
+                              <Badge className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
                                 <span className="text-xs">
                                   {[
                                     (categoryFilter && categoryFilter !== 'all') ? 1 : 0,
@@ -536,6 +501,8 @@ export default function Inventory({
                             )}
                           </Button>
                         </PopoverTrigger>
+
+                        {/* Filter popover */}
                         <PopoverContent className="w-80">
                           <div className="space-y-4">
                             <div className="flex justify-between items-center">
@@ -550,43 +517,40 @@ export default function Inventory({
                               </Button>
                             </div>
 
+                            {/* Category Filter */}
                             <div className="space-y-2">
                               <Label htmlFor="category-filter">Category</Label>
                               <Select
                                 value={categoryFilter}
-                                onValueChange={(value) => {
-                                  setCategoryFilter(value);
-                                }}
+                                onValueChange={setCategoryFilter}
                               >
                                 <SelectTrigger id="category-filter">
                                   <SelectValue placeholder="All categories" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="all">All categories</SelectItem>
-                                  {categories.map(category => (
+                                  {categories.map((category) => (
                                     <SelectItem key={category.id} value={String(category.id)}>
                                       {category.name}
                                     </SelectItem>
                                   ))}
-
                                 </SelectContent>
                               </Select>
                             </div>
 
+                            {/* Status Filter */}
                             <div className="space-y-2">
                               <Label htmlFor="status-filter">Status</Label>
                               <Select
                                 value={statusFilter}
-                                onValueChange={(value) => {
-                                  setStatusFilter(value);
-                                }}
+                                onValueChange={setStatusFilter}
                               >
                                 <SelectTrigger id="status-filter">
                                   <SelectValue placeholder="All statuses" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="all">All statuses</SelectItem>
-                                  {statusOptions.map(option => (
+                                  {statusOptions.map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
                                       {option.label}
                                     </SelectItem>
@@ -595,6 +559,7 @@ export default function Inventory({
                               </Select>
                             </div>
 
+                            {/* Price Range */}
                             <div className="space-y-2">
                               <Label>Price Range (IDR)</Label>
                               <div className="flex gap-2">
@@ -622,8 +587,9 @@ export default function Inventory({
                               </div>
                             </div>
 
+                            {/* Apply Filters Button */}
                             <Button
-                              className="w-full cursor-pointer mt-4"
+                              className="w-full mt-4"
                               onClick={() => {
                                 applyFilters();
                                 setIsFilterOpen(false);
@@ -643,6 +609,7 @@ export default function Inventory({
               </div>
             </div>
           </CardHeader>
+
           <CardContent>
             <div className="relative">
               {isLoading && (

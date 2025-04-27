@@ -12,6 +12,7 @@ import {
     Card,
     CardContent
 } from "@/components/ui/card";
+import { ActivityLog } from '@/types/activitylog';
 
 // Types
 interface LogCauser {
@@ -25,14 +26,6 @@ interface LogProperties {
     user_agent?: string;
 }
 
-interface ActivityLog {
-    id: number;
-    log_name: string;
-    description: string;
-    causer?: LogCauser;
-    properties: LogProperties;
-    created_at: string;
-}
 
 interface ActivityLogDialogProps {
     isOpen: boolean;

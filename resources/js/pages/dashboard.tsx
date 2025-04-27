@@ -24,7 +24,7 @@ import { CategoryDistributionChart } from '@/components/dashboard/CategoryDistri
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 
-interface DashboardProps {
+interface Props {
   stats: {
     users: number;
     items: number;
@@ -69,7 +69,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Dashboard', href: '/dashboard' },
 ];
 
-export default function Dashboard({ stats, categoryDistribution, recentActivities, activityTrends, inventoryStatus, can }: DashboardProps) {
+export default function Dashboard({ stats, categoryDistribution, recentActivities, activityTrends, inventoryStatus, can }: Props) {
   // Extract permission for cleaner code
   const canViewActivityLogs = can.view_activity_logs;
 
