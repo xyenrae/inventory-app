@@ -1,20 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
-import { Search, Filter, Eye, Clock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, User, Package, Folder, HardDrive, AlertCircle } from 'lucide-react';
+import { Search, Filter, Eye, Clock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, User, Package, Folder, AlertCircle, HardDrive } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Separator } from '@/components/ui/separator';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
@@ -250,7 +242,7 @@ export default function ActivityLogs({
       case 'item':
         return <Package className="h-4 w-4" />;
       default:
-        return <HardDrive className="h-4 w-4" />;
+        return <Package className="h-4 w-4" />;
     }
   };
 
@@ -544,7 +536,10 @@ export default function ActivityLogs({
                               <span>{log.causer.name}</span>
                             </div>
                           ) : (
-                            <span className="text-gray-500 italic">System</span>
+                            <div className='flex items-center gap-2'>
+                              <HardDrive className='h-4 w-4 text-gray-500' />
+                              <span className="text-gray-500 italic">System</span>
+                            </div>
                           )}
                         </TableCell>
                         <TableCell>

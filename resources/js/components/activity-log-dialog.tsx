@@ -1,4 +1,4 @@
-import { User, Clock, Package } from "lucide-react";
+import { User, Clock, Package, Folder } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -49,7 +49,7 @@ const getLogIcon = (logName: string) => {
         case "inventory":
             return <Package className="h-5 w-5 text-sidebar-accent-foreground" />;
         default:
-            return <User className="h-5 w-5 text-gray-500" />;
+            return <Folder className="h-5 w-5 text-gray-500" />;
     }
 };
 
