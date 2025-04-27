@@ -12,7 +12,7 @@ use App\Models\ActivityLog;
 use App\Policies\ActivityPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
-class AuthServiceProvider extends ServiceProvider
+class AppServiceProvider extends ServiceProvider
 {
     protected $policies = [
         Item::class => ItemPolicy::class,

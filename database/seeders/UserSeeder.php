@@ -59,12 +59,23 @@ class UserSeeder extends Seeder
 
         // Staff: CRUD for items & categories, but no access to users
         $staffPermissions = [
+            // Items
             'view items',
             'create items',
             'edit items',
+
+            // Categories
             'view categories',
             'create categories',
             'edit categories',
+
+            // Users
+            'view users',
+            'create users',
+            'edit users',
+
+            // Activity Logs
+            'view activity',
         ];
         Role::firstOrCreate(['name' => 'staff'])
             ->syncPermissions($staffPermissions);

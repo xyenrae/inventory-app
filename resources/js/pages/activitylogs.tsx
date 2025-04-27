@@ -364,381 +364,398 @@ export default function ActivityLogs({
         </div>
 
         <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>System Activity History</CardTitle>
-              <div className="flex space-x-2">
-                <div className="relative w-64">
-                  <Input
-                    placeholder="Search activity logs..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                </div>
+          {canViewActivityLogs
+            ? <>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle>System Activity History</CardTitle>
+                  <div className="flex space-x-2">
+                    <div className="relative w-64">
+                      <Input
+                        placeholder="Search activity logs..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    </div>
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" className="cursor-pointer">
-                            <Filter className="h-4 w-4 mr-2" />
-                            Filter
-                            {countActiveFilters() > 0 && (
-                              <Badge className="ml-2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
-                                <span className="text-xs">{countActiveFilters()}</span>
-                              </Badge>
-                            )}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                          <div className="space-y-4">
-                            <div className="flex justify-between items-center">
-                              <h4 className="font-medium">Filters</h4>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={resetFilters}
-                                className="h-8 px-2 text-xs cursor-pointer"
-                              >
-                                Reset filters
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className="cursor-pointer">
+                                <Filter className="h-4 w-4 mr-2" />
+                                Filter
+                                {countActiveFilters() > 0 && (
+                                  <Badge className="ml-2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
+                                    <span className="text-xs">{countActiveFilters()}</span>
+                                  </Badge>
+                                )}
                               </Button>
-                            </div>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80">
+                              <div className="space-y-4">
+                                <div className="flex justify-between items-center">
+                                  <h4 className="font-medium">Filters</h4>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={resetFilters}
+                                    className="h-8 px-2 text-xs cursor-pointer"
+                                  >
+                                    Reset filters
+                                  </Button>
+                                </div>
 
-                            <div className="space-y-2">
-                              <Label htmlFor="log-name-filter">Log Type</Label>
-                              <Select
-                                value={logNameFilter}
-                                onValueChange={(value) => {
-                                  setLogNameFilter(value);
-                                }}
-                              >
-                                <SelectTrigger id="log-name-filter">
-                                  <SelectValue placeholder="All logs" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="all">All logs</SelectItem>
-                                  {log_names.map(logName => (
-                                    <SelectItem key={logName} value={logName}>
-                                      {logName.charAt(0).toUpperCase() + logName.slice(1)}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="log-name-filter">Log Type</Label>
+                                  <Select
+                                    value={logNameFilter}
+                                    onValueChange={(value) => {
+                                      setLogNameFilter(value);
+                                    }}
+                                  >
+                                    <SelectTrigger id="log-name-filter">
+                                      <SelectValue placeholder="All logs" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="all">All logs</SelectItem>
+                                      {log_names.map(logName => (
+                                        <SelectItem key={logName} value={logName}>
+                                          {logName.charAt(0).toUpperCase() + logName.slice(1)}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
 
-                            <div className="space-y-2">
-                              <Label htmlFor="user-filter">User</Label>
-                              <Select
-                                value={causerFilter}
-                                onValueChange={(value) => {
-                                  setCauserFilter(value);
-                                }}
-                              >
-                                <SelectTrigger id="user-filter">
-                                  <SelectValue placeholder="All users" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="all">All users</SelectItem>
-                                  {users.map(user => (
-                                    <SelectItem key={user.id} value={user.id.toString()}>
-                                      {user.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="user-filter">User</Label>
+                                  <Select
+                                    value={causerFilter}
+                                    onValueChange={(value) => {
+                                      setCauserFilter(value);
+                                    }}
+                                  >
+                                    <SelectTrigger id="user-filter">
+                                      <SelectValue placeholder="All users" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="all">All users</SelectItem>
+                                      {users.map(user => (
+                                        <SelectItem key={user.id} value={user.id.toString()}>
+                                          {user.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
 
-                            <div className="grid grid-cols-2 gap-2">
-                              <div className="space-y-2">
-                                <Label htmlFor="start-date">Start Date</Label>
-                                <Input
-                                  id="start-date"
-                                  type="date"
-                                  value={startDateFilter}
-                                  onChange={(e) => setStartDateFilter(e.target.value)}
-                                />
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="start-date">Start Date</Label>
+                                    <Input
+                                      id="start-date"
+                                      type="date"
+                                      value={startDateFilter}
+                                      onChange={(e) => setStartDateFilter(e.target.value)}
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="end-date">End Date</Label>
+                                    <Input
+                                      id="end-date"
+                                      type="date"
+                                      value={endDateFilter}
+                                      onChange={(e) => setEndDateFilter(e.target.value)}
+                                    />
+                                  </div>
+                                </div>
+
+                                <Button
+                                  className="w-full cursor-pointer mt-4"
+                                  onClick={() => {
+                                    applyFilters();
+                                    setIsFilterOpen(false);
+                                  }}
+                                >
+                                  Apply Filters
+                                </Button>
                               </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="end-date">End Date</Label>
-                                <Input
-                                  id="end-date"
-                                  type="date"
-                                  value={endDateFilter}
-                                  onChange={(e) => setEndDateFilter(e.target.value)}
-                                />
-                              </div>
-                            </div>
-
-                            <Button
-                              className="w-full cursor-pointer mt-4"
-                              onClick={() => {
-                                applyFilters();
-                                setIsFilterOpen(false);
-                              }}
-                            >
-                              Apply Filters
-                            </Button>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Filter activity logs</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="relative">
-              {isLoading && (
-                <div className="pointer-events-none opacity-50">
+                            </PopoverContent>
+                          </Popover>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Filter activity logs</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </div>
-              )}
+              </CardHeader>
 
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Activity</TableHead>
-                    <TableHead>Log Type</TableHead>
-                    <TableHead>User</TableHead>
-                    <TableHead>Timestamp</TableHead>
-                    <TableHead>Browser</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {activity_logs.length > 0 ? (
-                    activity_logs.map((log) => (
-                      <TableRow key={log.id}>
-                        <TableCell>
-                          <Badge
-                            className={`${getDescriptionBadgeColor(log.description)}`}
-                            variant="outline"
-                          >
-                            {log.description}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {getLogIcon(log.log_name)}
-                            <span>{log.log_name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {log.causer ? (
-                            <div className="flex items-center gap-2">
-                              <User className="h-4 w-4 text-gray-400" />
-                              <span>{log.causer.name}</span>
-                            </div>
-                          ) : (
-                            <div className='flex items-center gap-2'>
-                              <HardDrive className='h-4 w-4 text-gray-500' />
-                              <span className="text-gray-500 italic">System</span>
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-gray-400" />
-                            <span>{formatDateTime(log.created_at)}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {formatBrowserInfo(log.properties.user_agent)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end space-x-2">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
+              <CardContent>
+                <div className="relative">
+                  {isLoading && (
+                    <div className="pointer-events-none opacity-50">
+                    </div>
+                  )}
+
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Activity</TableHead>
+                        <TableHead>Log Type</TableHead>
+                        <TableHead>User</TableHead>
+                        <TableHead>Timestamp</TableHead>
+                        <TableHead>Browser</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {activity_logs.length > 0 ? (
+                        activity_logs.map((log) => (
+                          <TableRow key={log.id}>
+                            <TableCell>
+                              <Badge
+                                className={`${getDescriptionBadgeColor(log.description)}`}
+                                variant="outline"
+                              >
+                                {log.description}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                {getLogIcon(log.log_name)}
+                                <span>{log.log_name}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {log.causer ? (
+                                <div className="flex items-center gap-2">
+                                  <User className="h-4 w-4 text-gray-400" />
+                                  <span>{log.causer.name}</span>
+                                </div>
+                              ) : (
+                                <div className='flex items-center gap-2'>
+                                  <HardDrive className='h-4 w-4 text-gray-500' />
+                                  <span className="text-gray-500 italic">System</span>
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Clock className="h-4 w-4 text-gray-400" />
+                                <span>{formatDateTime(log.created_at)}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {formatBrowserInfo(log.properties.user_agent)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end space-x-2">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="cursor-pointer"
+                                        onClick={() => handleViewLog(log)}
+                                      >
+                                        <Eye className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>View log details</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                            {searchTerm || logNameFilter !== 'all' || startDateFilter || endDateFilter || causerFilter !== 'all' ? (
+                              <>
+                                <div className="flex flex-col items-center justify-center">
+                                  <Filter className="h-8 w-8 text-gray-400 mb-2" />
+                                  <p>No activity logs match your current filters or search terms.</p>
                                   <Button
                                     variant="outline"
-                                    size="icon"
-                                    className="cursor-pointer"
-                                    onClick={() => handleViewLog(log)}
+                                    size="sm"
+                                    onClick={resetFilters}
+                                    className="mt-2 cursor-pointer"
                                   >
-                                    <Eye className="h-4 w-4" />
+                                    Clear filters
                                   </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>View log details</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                        {searchTerm || logNameFilter !== 'all' || startDateFilter || endDateFilter || causerFilter !== 'all' ? (
-                          <>
-                            <div className="flex flex-col items-center justify-center">
-                              <Filter className="h-8 w-8 text-gray-400 mb-2" />
-                              <p>No activity logs match your current filters or search terms.</p>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={resetFilters}
-                                className="mt-2 cursor-pointer"
-                              >
-                                Clear filters
-                              </Button>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="flex flex-col items-center justify-center">
-                              <HardDrive className="h-8 w-8 text-gray-400 mb-2" />
-                              <p>No activity logs available</p>
-                            </div>
-                          </>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="flex flex-col items-center justify-center">
+                                  <HardDrive className="h-8 w-8 text-gray-400 mb-2" />
+                                  <p>No activity logs available</p>
+                                </div>
+                              </>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+
+              {/* Pagination Footer */}
+              {pagination && pagination.total > 0 && (
+                <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t pt-4">
+                  <div className="text-sm text-muted-foreground">
+                    Showing <span className="font-medium">{pagination.from}</span> to{" "}
+                    <span className="font-medium">{pagination.to}</span> of{" "}
+                    <span className="font-medium">{pagination.total}</span> activities
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center">
+                      <Select
+                        value={perPage?.toString() ?? '10'}
+                        onValueChange={handlePerPageChange}
+                      >
+                        <SelectTrigger className="h-8 w-[70px]">
+                          <SelectValue placeholder={(perPage || 10).toString()} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {perPageOptions.map(option => (
+                            <SelectItem key={option} value={option.toString()}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <span className="ml-2 text-sm text-muted-foreground">per page</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => goToPage(1)}
+                              disabled={pagination.current_page === 1 || isLoading}
+                            >
+                              <ChevronsLeft className="h-4 w-4" />
+                              <span className="sr-only">First page</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>First page</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => goToPage(pagination.current_page - 1)}
+                              disabled={pagination.current_page === 1 || isLoading}
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                              <span className="sr-only">Previous page</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Previous page</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      <div className="hidden sm:flex items-center space-x-1">
+                        {getPaginationRange().map((page, index) => (
+                          page < 0 ? (
+                            <span key={`ellipsis-${index}`} className="px-2">...</span>
+                          ) : (
+                            <Button
+                              key={page}
+                              variant={pagination.current_page === page ? "default" : "outline"}
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => goToPage(page)}
+                              disabled={isLoading}
+                            >
+                              {page}
+                            </Button>
+                          )
+                        ))}
+                      </div>
+
+                      <div className="sm:hidden">
+                        <span className="text-sm font-medium">
+                          Page {pagination.current_page} of {pagination.last_page}
+                        </span>
+                      </div>
+
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => goToPage(pagination.current_page + 1)}
+                              disabled={pagination.current_page === pagination.last_page || isLoading}
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                              <span className="sr-only">Next page</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Next page</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => goToPage(pagination.last_page)}
+                              disabled={pagination.current_page === pagination.last_page || isLoading}
+                            >
+                              <ChevronsRight className="h-4 w-4" />
+                              <span className="sr-only">Last page</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Last page</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+                </CardFooter>
+              )}
+            </>
+            : <div className="mt-4 p-4 border border-yellow-200 bg-yellow-50 rounded-md flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+              <div>
+                <h3 className="font-medium text-yellow-800">Access Restricted</h3>
+                <p className="text-yellow-700 text-sm">
+                  You don't have permission to view activity logs. Please contact your administrator if you need access.
+                </p>
+              </div>
             </div>
-          </CardContent>
+          }
 
-          {/* Pagination Footer */}
-          {pagination && pagination.total > 0 && (
-            <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t pt-4">
-              <div className="text-sm text-muted-foreground">
-                Showing <span className="font-medium">{pagination.from}</span> to{" "}
-                <span className="font-medium">{pagination.to}</span> of{" "}
-                <span className="font-medium">{pagination.total}</span> activities
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="flex items-center">
-                  <Select
-                    value={perPage?.toString() ?? '10'}
-                    onValueChange={handlePerPageChange}
-                  >
-                    <SelectTrigger className="h-8 w-[70px]">
-                      <SelectValue placeholder={(perPage || 10).toString()} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {perPageOptions.map(option => (
-                        <SelectItem key={option} value={option.toString()}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <span className="ml-2 text-sm text-muted-foreground">per page</span>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(1)}
-                          disabled={pagination.current_page === 1 || isLoading}
-                        >
-                          <ChevronsLeft className="h-4 w-4" />
-                          <span className="sr-only">First page</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>First page</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(pagination.current_page - 1)}
-                          disabled={pagination.current_page === 1 || isLoading}
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                          <span className="sr-only">Previous page</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Previous page</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <div className="hidden sm:flex items-center space-x-1">
-                    {getPaginationRange().map((page, index) => (
-                      page < 0 ? (
-                        <span key={`ellipsis-${index}`} className="px-2">...</span>
-                      ) : (
-                        <Button
-                          key={page}
-                          variant={pagination.current_page === page ? "default" : "outline"}
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(page)}
-                          disabled={isLoading}
-                        >
-                          {page}
-                        </Button>
-                      )
-                    ))}
-                  </div>
-
-                  <div className="sm:hidden">
-                    <span className="text-sm font-medium">
-                      Page {pagination.current_page} of {pagination.last_page}
-                    </span>
-                  </div>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(pagination.current_page + 1)}
-                          disabled={pagination.current_page === pagination.last_page || isLoading}
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                          <span className="sr-only">Next page</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Next page</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(pagination.last_page)}
-                          disabled={pagination.current_page === pagination.last_page || isLoading}
-                        >
-                          <ChevronsRight className="h-4 w-4" />
-                          <span className="sr-only">Last page</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Last page</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
-            </CardFooter>
-          )}
         </Card>
+
+
 
         {/* View Log Details Dialog */}
         <ActivityLogDialog
@@ -746,20 +763,6 @@ export default function ActivityLogs({
           onClose={() => setViewDialogOpen(false)}
           currentLog={currentLog}
         />
-
-        {/* Alert for unauthorized users */}
-        {!canViewActivityLogs && (
-          <div className="mt-4 p-4 border border-yellow-200 bg-yellow-50 rounded-md flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-yellow-800">Access Restricted</h3>
-              <p className="text-yellow-700 text-sm">
-                You don't have permission to view activity logs. Please contact your administrator if you need access.
-              </p>
-              <p className='text-black'>woi {canViewActivityLogs.toString()}</p>
-            </div>
-          </div>
-        )}
       </div>
     </AppLayout>
   );

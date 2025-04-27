@@ -26,7 +26,7 @@ class ActivityLogController extends Controller
     public function index(Request $request)
     {
 
-        $this->authorize('viewAny', ActivityLog::class);
+        // $this->authorize('viewAny', ActivityLog::class);
 
         $validated = $request->validate([
             'perPage' => 'sometimes|integer|min:1|max:100',
@@ -102,7 +102,7 @@ class ActivityLogController extends Controller
             'log_names' => $logNames,
             'users' => $users,
             'can' => [
-                'view_activity_logs' => Gate::check('viewAny', ActivityLog::class),
+                'view_activity_logs' => $request->user()->can('viewAny', ActivityLog::class),
             ],
         ]);
     }

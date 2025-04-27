@@ -23,7 +23,7 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $this->authorize('viewAny', User::class);
+        // $this->authorize('viewAny', User::class);
 
         $validated = $request->validate([
             'perPage' => 'sometimes|integer|min:1|max:100',
@@ -71,10 +71,12 @@ class UserController extends Controller
                 'perPage' => (int)$perPage,
             ],
             'can' => [
+                'view_users' => $request->user()->can('viewAny', User::class),
                 'create' => $request->user()->can('create', User::class),
-                'edit' => $request->user()->can('update', User::class),
-                'delete' => $request->user()->can('delete', User::class),
+                'edit' => $request->user()->can('edit', User::class),
+                'delete' => $request->user()->can('forceDelete', User::class),
             ],
+
         ]);
     }
 

@@ -24,7 +24,7 @@ class UserPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->hasPermissionTo('view users');
+        return $user->can('view users');
     }
 
     /**
@@ -32,7 +32,7 @@ class UserPolicy
      */
     public function view(User $user, User $model)
     {
-        return $user->hasPermissionTo('view users');
+        return $user->can('view users');
     }
 
     /**
@@ -40,7 +40,7 @@ class UserPolicy
      */
     public function create(User $user)
     {
-        return $user->hasPermissionTo('create users');
+        return $user->can('create users');
     }
 
     /**
@@ -48,14 +48,30 @@ class UserPolicy
      */
     public function update(User $user, User $model)
     {
-        return $user->hasPermissionTo('edit users');
+        return $user->can('edit users');
     }
 
     /**
-     * Delete a user (not themselves).
+     * Delete a user.
      */
     public function delete(User $user, User $model)
     {
-        return $user->hasPermissionTo('delete users') && $user->id !== $model->id;
+        return $user->can('delete users') && $user->id !== $model->id;
+    }
+
+    /**
+     * General permission to update *any* user.
+     */
+    public function edit(User $user)
+    {
+        return $user->can('edit users');
+    }
+
+    /**
+     * General permission to delete *any* user.
+     */
+    public function forceDelete(User $user)
+    {
+        return $user->can('delete users');
     }
 }

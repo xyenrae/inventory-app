@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Head, useForm, router, usePage } from '@inertiajs/react';
-import { Plus, Search, Filter, Edit, Trash2, Eye, Clock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Plus, Search, Filter, Edit, Trash2, Eye, Clock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, AlertCircle } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -92,6 +92,7 @@ interface Props {
   pagination?: Pagination;
   filters: Filters;
   can?: {
+    view_users: boolean;
     create: boolean;
     edit: boolean;
     delete: boolean;
@@ -141,6 +142,7 @@ export default function Users({
   },
   can
 }: Props) {
+  const canViewUsers = can?.view_users || false;
   const canCreateUsers = can?.create || false;
   const canEditUsers = can?.edit || false;
   const canDeleteUsers = can?.delete || false;
@@ -501,379 +503,398 @@ export default function Users({
         </div>
 
         <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>All Users</CardTitle>
-              <div className="flex space-x-2">
-                <div className="relative w-64">
-                  <Input
-                    placeholder="Search users..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                </div>
+          {canViewUsers
+            ? <>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle>All Users</CardTitle>
+                  <div className="flex space-x-2">
+                    <div className="relative w-64">
+                      <Input
+                        placeholder="Search users..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    </div>
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" className="cursor-pointer">
-                            <Filter className="h-4 w-4 mr-2" />
-                            Filter
-                            {roleFilter && roleFilter !== 'all' && (
-                              <Badge className="ml-2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
-                                <span className="text-xs">1</span>
-                              </Badge>
-                            )}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                          <div className="space-y-4">
-                            <div className="flex justify-between items-center">
-                              <h4 className="font-medium">Filters</h4>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={resetFilters}
-                                className="h-8 px-2 text-xs cursor-pointer"
-                              >
-                                Reset filters
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className="cursor-pointer">
+                                <Filter className="h-4 w-4 mr-2" />
+                                Filter
+                                {roleFilter && roleFilter !== 'all' && (
+                                  <Badge className="ml-2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
+                                    <span className="text-xs">1</span>
+                                  </Badge>
+                                )}
                               </Button>
-                            </div>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80">
+                              <div className="space-y-4">
+                                <div className="flex justify-between items-center">
+                                  <h4 className="font-medium">Filters</h4>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={resetFilters}
+                                    className="h-8 px-2 text-xs cursor-pointer"
+                                  >
+                                    Reset filters
+                                  </Button>
+                                </div>
 
-                            <div className="space-y-2">
-                              <Label htmlFor="role-filter">Role</Label>
-                              <Select
-                                value={roleFilter}
-                                onValueChange={(value) => {
-                                  setRoleFilter(value);
-                                }}
-                              >
-                                <SelectTrigger id="role-filter">
-                                  <SelectValue placeholder="All roles" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="all">All roles</SelectItem>
-                                  {roles.map(role => (
-                                    <SelectItem key={role.id} value={role.name}>
-                                      {role.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="role-filter">Role</Label>
+                                  <Select
+                                    value={roleFilter}
+                                    onValueChange={(value) => {
+                                      setRoleFilter(value);
+                                    }}
+                                  >
+                                    <SelectTrigger id="role-filter">
+                                      <SelectValue placeholder="All roles" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="all">All roles</SelectItem>
+                                      {roles.map(role => (
+                                        <SelectItem key={role.id} value={role.name}>
+                                          {role.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
 
-                            <Button
-                              className="w-full cursor-pointer mt-4"
-                              onClick={() => {
-                                applyFilters();
-                                setIsFilterOpen(false);
-                              }}
-                            >
-                              Apply Filters
-                            </Button>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Filter users</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="relative">
-              {isLoading && (
-                <div className="pointer-events-none opacity-50">
+                                <Button
+                                  className="w-full cursor-pointer mt-4"
+                                  onClick={() => {
+                                    applyFilters();
+                                    setIsFilterOpen(false);
+                                  }}
+                                >
+                                  Apply Filters
+                                </Button>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Filter users</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </div>
-              )}
+              </CardHeader>
 
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Registered</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.length > 0 ? (
-                    users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.name}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>
-                          {user.roles && user.roles.length > 0 ? (
-                            user.roles.map(role => (
-                              <Badge
-                                key={role.id}
-                                className={`${role.name === 'admin'
-                                  ? 'bg-purple-100 text-purple-800 hover:bg-purple-200'
-                                  : role.name === 'staff'
-                                    ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                                  }`}
-                                variant="outline"
-                              >
-                                {role.name}
-                              </Badge>
-                            ))
-                          ) : (
-                            <span className="text-gray-400 italic">No role</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(user.created_at).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                          })}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end space-x-2">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
+              <CardContent>
+                <div className="relative">
+                  {isLoading && (
+                    <div className="pointer-events-none opacity-50">
+                    </div>
+                  )}
+
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Registered</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {users.length > 0 ? (
+                        users.map((user) => (
+                          <TableRow key={user.id}>
+                            <TableCell className="font-medium">{user.name}</TableCell>
+                            <TableCell>{user.email}</TableCell>
+                            <TableCell>
+                              {user.roles && user.roles.length > 0 ? (
+                                user.roles.map(role => (
+                                  <Badge
+                                    key={role.id}
+                                    className={`${role.name === 'admin'
+                                      ? 'bg-purple-100 text-purple-800 hover:bg-purple-200'
+                                      : role.name === 'staff'
+                                        ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                                        : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                                      }`}
+                                    variant="outline"
+                                  >
+                                    {role.name}
+                                  </Badge>
+                                ))
+                              ) : (
+                                <span className="text-gray-400 italic">No role</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {new Date(user.created_at).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end space-x-2">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="cursor-pointer"
+                                        onClick={() => handleViewUser(user)}
+                                      >
+                                        <Eye className="h-4 w-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>View user details</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+
+                                {canEditUsers && (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          variant="outline"
+                                          size="icon"
+                                          onClick={() => handleEditUser(user)}
+                                          className="cursor-pointer"
+                                        >
+                                          <Edit className="h-4 w-4" />
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Edit this user</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+
+                                {canDeleteUsers && (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          variant="outline"
+                                          size="icon"
+                                          onClick={() => handleDeleteUser(user.id)}
+                                          className="cursor-pointer"
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Delete this user</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                            {(searchTerm || roleFilter !== 'all') ? (
+                              <>
+                                <div className="flex flex-col items-center justify-center">
+                                  <Filter className="h-8 w-8 text-gray-400 mb-2" />
+                                  <p>No users match your current filters or search terms.</p>
                                   <Button
                                     variant="outline"
-                                    size="icon"
-                                    className="cursor-pointer"
-                                    onClick={() => handleViewUser(user)}
+                                    size="sm"
+                                    onClick={resetFilters}
+                                    className="mt-2 cursor-pointer"
                                   >
-                                    <Eye className="h-4 w-4" />
+                                    Clear filters
                                   </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>View user details</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-
-                            {canEditUsers && (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="flex flex-col items-center justify-center">
+                                  <UserCircle className="h-8 w-8 text-gray-400 mb-2" />
+                                  <p>No users available</p>
+                                  {canCreateUsers && (
                                     <Button
                                       variant="outline"
-                                      size="icon"
-                                      onClick={() => handleEditUser(user)}
-                                      className="cursor-pointer"
+                                      size="sm"
+                                      onClick={openAddDialog}
+                                      className="mt-2 cursor-pointer"
                                     >
-                                      <Edit className="h-4 w-4" />
+                                      Add your first user
                                     </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Edit this user</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
+                                  )}
+                                </div>
+                              </>
                             )}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
 
-                            {canDeleteUsers && (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      variant="outline"
-                                      size="icon"
-                                      onClick={() => handleDeleteUser(user.id)}
-                                      className="cursor-pointer"
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Delete this user</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                        {(searchTerm || roleFilter !== 'all') ? (
-                          <>
-                            <div className="flex flex-col items-center justify-center">
-                              <Filter className="h-8 w-8 text-gray-400 mb-2" />
-                              <p>No users match your current filters or search terms.</p>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={resetFilters}
-                                className="mt-2 cursor-pointer"
-                              >
-                                Clear filters
-                              </Button>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="flex flex-col items-center justify-center">
-                              <UserCircle className="h-8 w-8 text-gray-400 mb-2" />
-                              <p>No users available</p>
-                              {canCreateUsers && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={openAddDialog}
-                                  className="mt-2 cursor-pointer"
-                                >
-                                  Add your first user
-                                </Button>
-                              )}
-                            </div>
-                          </>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+
+                  </Table>
+                </div>
+              </CardContent>
+
+
+
+              {/* Pagination Footer */}
+              {pagination && pagination.total > 0 && (
+                <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t pt-4">
+                  <div className="text-sm text-muted-foreground">
+                    Showing <span className="font-medium">{pagination.from}</span> to{" "}
+                    <span className="font-medium">{pagination.to}</span> of{" "}
+                    <span className="font-medium">{pagination.total}</span> users
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center">
+                      <Select
+                        value={perPage?.toString() ?? '10'}
+                        onValueChange={handlePerPageChange}
+                      >
+                        <SelectTrigger className="h-8 w-[70px]">
+                          <SelectValue placeholder={(perPage || 10).toString()} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {perPageOptions.map(option => (
+                            <SelectItem key={option} value={option.toString()}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <span className="ml-2 text-sm text-muted-foreground">per page</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => goToPage(1)}
+                              disabled={pagination.current_page === 1 || isLoading}
+                            >
+                              <ChevronsLeft className="h-4 w-4" />
+                              <span className="sr-only">First page</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>First page</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => goToPage(pagination.current_page - 1)}
+                              disabled={pagination.current_page === 1 || isLoading}
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                              <span className="sr-only">Previous page</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Previous page</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      <div className="hidden sm:flex items-center space-x-1">
+                        {getPaginationRange().map((page, index) => (
+                          page < 0 ? (
+                            <span key={`ellipsis-${index}`} className="px-2">...</span>
+                          ) : (
+                            <Button
+                              key={page}
+                              variant={pagination.current_page === page ? "default" : "outline"}
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => goToPage(page)}
+                              disabled={isLoading}
+                            >
+                              {page}
+                            </Button>
+                          )
+                        ))}
+                      </div>
+
+                      <div className="sm:hidden">
+                        <span className="text-sm font-medium">
+                          Page {pagination.current_page} of {pagination.last_page}
+                        </span>
+                      </div>
+
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => goToPage(pagination.current_page + 1)}
+                              disabled={pagination.current_page === pagination.last_page || isLoading}
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                              <span className="sr-only">Next page</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Next page</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => goToPage(pagination.last_page)}
+                              disabled={pagination.current_page === pagination.last_page || isLoading}
+                            >
+                              <ChevronsRight className="h-4 w-4" />
+                              <span className="sr-only">Last page</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Last page</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+                </CardFooter>
+              )}
+            </>
+
+            : <div className="mt-4 p-4 border border-yellow-200 bg-yellow-50 rounded-md flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+              <div>
+                <h3 className="font-medium text-yellow-800">Access Restricted</h3>
+                <p className="text-yellow-700 text-sm">
+                  You don't have permission to view activity logs. Please contact your administrator if you need access.
+                </p>
+              </div>
             </div>
-          </CardContent>
-
-          {/* Pagination Footer */}
-          {pagination && pagination.total > 0 && (
-            <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t pt-4">
-              <div className="text-sm text-muted-foreground">
-                Showing <span className="font-medium">{pagination.from}</span> to{" "}
-                <span className="font-medium">{pagination.to}</span> of{" "}
-                <span className="font-medium">{pagination.total}</span> users
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="flex items-center">
-                  <Select
-                    value={perPage?.toString() ?? '10'}
-                    onValueChange={handlePerPageChange}
-                  >
-                    <SelectTrigger className="h-8 w-[70px]">
-                      <SelectValue placeholder={(perPage || 10).toString()} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {perPageOptions.map(option => (
-                        <SelectItem key={option} value={option.toString()}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <span className="ml-2 text-sm text-muted-foreground">per page</span>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(1)}
-                          disabled={pagination.current_page === 1 || isLoading}
-                        >
-                          <ChevronsLeft className="h-4 w-4" />
-                          <span className="sr-only">First page</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>First page</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(pagination.current_page - 1)}
-                          disabled={pagination.current_page === 1 || isLoading}
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                          <span className="sr-only">Previous page</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Previous page</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <div className="hidden sm:flex items-center space-x-1">
-                    {getPaginationRange().map((page, index) => (
-                      page < 0 ? (
-                        <span key={`ellipsis-${index}`} className="px-2">...</span>
-                      ) : (
-                        <Button
-                          key={page}
-                          variant={pagination.current_page === page ? "default" : "outline"}
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(page)}
-                          disabled={isLoading}
-                        >
-                          {page}
-                        </Button>
-                      )
-                    ))}
-                  </div>
-
-                  <div className="sm:hidden">
-                    <span className="text-sm font-medium">
-                      Page {pagination.current_page} of {pagination.last_page}
-                    </span>
-                  </div>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(pagination.current_page + 1)}
-                          disabled={pagination.current_page === pagination.last_page || isLoading}
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                          <span className="sr-only">Next page</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Next page</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(pagination.last_page)}
-                          disabled={pagination.current_page === pagination.last_page || isLoading}
-                        >
-                          <ChevronsRight className="h-4 w-4" />
-                          <span className="sr-only">Last page</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Last page</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
-            </CardFooter>
-          )}
+          }
         </Card>
 
         {/* View User Dialog */}
