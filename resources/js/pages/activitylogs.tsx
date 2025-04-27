@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { ActivityLogDialog } from '@/components/activity-log-dialog';
 
 interface ActivityLog {
   id: number;
@@ -124,10 +125,11 @@ export default function ActivityLogs({
 }: Props) {
   const canViewActivityLogs = can?.view_activity_logs || false;
 
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [currentLog, setCurrentLog] = useState<ActivityLog | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
 
   // Local state for filters
   const [searchTerm, setSearchTerm] = useState(filters.search);
@@ -233,9 +235,9 @@ export default function ActivityLogs({
     });
   };
 
-  const handleViewLog = (log: ActivityLog) => {
+  const handleViewLog = (log) => {
     setCurrentLog(log);
-    setIsViewDialogOpen(true);
+    setViewDialogOpen(true);
   };
 
   // Get Icon based on log_name
@@ -744,105 +746,11 @@ export default function ActivityLogs({
         </Card>
 
         {/* View Log Details Dialog */}
-        <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                {currentLog && getLogIcon(currentLog.log_name)}
-                Activity Log Details
-              </DialogTitle>
-            </DialogHeader>
-            {currentLog && (
-              <div className="py-4 space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Activity</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge
-                      className={`${getDescriptionBadgeColor(currentLog.description)}`}
-                      variant="outline"
-                    >
-                      {currentLog.description}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Log Type</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    {getLogIcon(currentLog.log_name)}
-                    <p className="text-base font-medium">{currentLog.log_name}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Performed By</p>
-                  {currentLog.causer ? (
-                    <div className="flex items-center gap-2 mt-1">
-                      <User className="h-4 w-4 text-gray-400" />
-                      <p className="text-base">{currentLog.causer.name} ({currentLog.causer.email})</p>
-                    </div>
-                  ) : (
-                    <p className="text-base italic text-muted-foreground mt-1">System</p>
-                  )}
-                </div>
-
-                <Separator className="my-2" />
-
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Changed Properties</p>
-                  {currentLog.properties && currentLog.properties.attributes ? (
-                    <div className="mt-2 p-3 bg-gray-50 rounded-md overflow-x-auto">
-                      <pre className="text-sm">{JSON.stringify(currentLog.properties.attributes, null, 2)}</pre>
-                    </div>
-                  ) : (
-                    <p className="text-base italic text-muted-foreground mt-1">No properties recorded</p>
-                  )}
-                </div>
-
-                {currentLog.properties && currentLog.properties.old && Object.keys(currentLog.properties.old).length > 0 && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Previous Values</p>
-                    <div className="mt-2 p-3 bg-gray-50 rounded-md overflow-x-auto">
-                      <pre className="text-sm">{JSON.stringify(currentLog.properties.old, null, 2)}</pre>
-                    </div>
-                  </div>
-                )}
-
-                <Separator className="my-2" />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Timestamp</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Clock className="h-4 w-4 text-gray-400" />
-                      <p className="font-medium">
-                        {new Date(currentLog.created_at).toLocaleDateString('id-ID', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          second: '2-digit',
-                          hour12: false,
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">User Agent</p>
-                    <p className="mt-1 text-sm break-words">
-                      {currentLog.properties.user_agent || 'Not recorded'}
-                    </p>
-                  </div></div>
-              </div>
-            )}
-            <DialogFooter>
-              <Button onClick={() => setIsViewDialogOpen(false)} className="cursor-pointer">
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <ActivityLogDialog
+          isOpen={viewDialogOpen}
+          onClose={() => setViewDialogOpen(false)}
+          currentLog={currentLog}
+        />
 
         {/* Alert for unauthorized users */}
         {!canViewActivityLogs && (
