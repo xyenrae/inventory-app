@@ -16,26 +16,39 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 
+// Landing page
 Route::get('/', function () {
-    return Inertia::render('welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+    return Inertia::render('auth/login', [
+        'canResetPassword' => true,
+        'status' => session('status'),
     ]);
 })->name('home');
 
+// Login page
+Route::get('/login', function () {
+    return Inertia::render('auth/login', [
+        'canResetPassword' => true,
+        'status' => session('status'),
+    ]);
+})->name('login');
+
+// Register page
+Route::get('/register', function () {
+    return Inertia::render('auth/register');
+})->name('register');
+
+// Authenticated routes
 Route::middleware(['auth'])->group(function () {
-    // Dashboard (manual route, bukan resource)
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Resource untuk inventory, category, users, activitylogs
+    // Resourceful routes
     Route::resource('inventory', InventoryController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('users', UserController::class);
     Route::resource('activitylogs', ActivityLogController::class);
 });
 
-// Route tambahan
+// Tambahan
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
