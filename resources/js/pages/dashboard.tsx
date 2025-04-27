@@ -46,9 +46,11 @@ interface DashboardProps {
     } | null;
   }[];
   activityTrends: {
-    date: string;
-    count: number;
-  }[];
+    '7d': { date: string; count: number }[];
+    '30d': { date: string; count: number }[];
+    '90d': { date: string; count: number }[];
+    'all': { date: string; count: number }[];
+  };
   inventoryStatus: {
     name: string;
     value: number;
@@ -60,6 +62,7 @@ interface DashboardProps {
     view_activity_logs: boolean;
   };
 }
+
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Dashboard', href: '/dashboard' },
@@ -147,13 +150,6 @@ export default function Dashboard({ stats, categoryDistribution, recentActivitie
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Only show Activity Trends if user has permission */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <LineChartIcon className="h-4 w-4 mr-2" />
-                      Activity Trends
-                    </CardTitle>
-                    <CardDescription>User activities over the past 7 days</CardDescription>
-                  </CardHeader>
                   <CardContent>
                     <ActivityTrendChart data={activityTrends} />
                   </CardContent>
@@ -263,7 +259,7 @@ export default function Dashboard({ stats, categoryDistribution, recentActivitie
                 </CardContent>
               </Card>
 
-              <Card className="mt-4">
+              <Card className="mt-12">
                 <CardHeader>
                   <CardTitle>Recent Activities</CardTitle>
                   <CardDescription>Latest system events</CardDescription>

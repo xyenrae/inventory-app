@@ -1,64 +1,182 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { format, parseISO } from 'date-fns';
+import { LineChartIcon } from 'lucide-react';
+
+interface ActivityData {
+    date: string;
+    count: number;
+}
 
 interface ActivityTrendChartProps {
     data: {
-        date: string;
-        count: number;
-    }[];
+        '7d': ActivityData[];
+        '30d': ActivityData[];
+        '90d': ActivityData[];
+        'all': ActivityData[];
+    };
 }
 
 export function ActivityTrendChart({ data }: ActivityTrendChartProps) {
-    const formattedData = data.map(item => ({
-        ...item,
-        formattedDate: format(parseISO(item.date), 'MMM dd')
-    }));
+    const [timeRange, setTimeRange] = useState<'7D' | '30D' | '90D' | 'All'>('7D');
+    const [chartData, setChartData] = useState<ActivityData[]>([]);
+    const [totalActivities, setTotalActivities] = useState(0);
+    const [averageActivities, setAverageActivities] = useState(0);
+
+    // Set the chart data based on the selected time range
+    useEffect(() => {
+        const rangeMap: Record<string, keyof typeof data> = {
+            '7D': '7d',
+            '30D': '30d',
+            '90D': '90d',
+            'All': 'all'
+        };
+
+        const selectedData = data[rangeMap[timeRange]] || [];
+
+        const processedData = selectedData.map(item => ({
+            ...item,
+            formattedDate: format(parseISO(item.date), 'MMM dd')
+        }));
+
+        setChartData(processedData);
+
+        // Calculate total and average
+        const total = processedData.reduce((sum, item) => sum + item.count, 0);
+        setTotalActivities(total);
+        setAverageActivities(processedData.length > 0 ? total / processedData.length : 0);
+    }, [timeRange, data]);
 
     return (
-        <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                    data={formattedData}
-                    margin={{
-                        top: 10,
-                        right: 10,
-                        left: 0,
-                        bottom: 0,
-                    }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                        dataKey="formattedDate"
-                        tick={{ fontSize: 12 }}
-                        tickLine={false}
-                        axisLine={false}
-                    />
-                    <YAxis
-                        tick={{ fontSize: 12 }}
-                        tickLine={false}
-                        axisLine={false}
-                        allowDecimals={false}
-                    />
-                    <Tooltip
-                        contentStyle={{
-                            backgroundColor: 'white',
-                            borderRadius: '0.5rem',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                            border: 'none',
+        <div className="rounded-lg shadow-sm p-4">
+            <div className="flex justify-between items-center mb-4">
+                <div>
+                    <div className="flex items-center">
+                        <LineChartIcon className="h-4 w-4 mr-2" />
+                        <h3 className="font-medium text-gray-900 dark:text-white">Activity Trend</h3>
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                        User activities over time
+                    </p>
+                </div>
+
+                <div className="flex space-x-1">
+                    <button
+                        onClick={() => setTimeRange('7D')}
+                        className={`px-3 py-1 rounded-md text-sm ${timeRange === '7D'
+                            ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            }`}
+                    >
+                        7D
+                    </button>
+                    <button
+                        onClick={() => setTimeRange('30D')}
+                        className={`px-3 py-1 rounded-md text-sm ${timeRange === '30D'
+                            ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            }`}
+                    >
+                        30D
+                    </button>
+                    <button
+                        onClick={() => setTimeRange('90D')}
+                        className={`px-3 py-1 rounded-md text-sm ${timeRange === '90D'
+                            ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            }`}
+                    >
+                        90D
+                    </button>
+                    <button
+                        onClick={() => setTimeRange('All')}
+                        className={`px-3 py-1 rounded-md text-sm ${timeRange === 'All'
+                            ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            }`}
+                    >
+                        All
+                    </button>
+                </div>
+            </div>
+
+            <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                        data={chartData}
+                        margin={{
+                            top: 10,
+                            right: 10,
+                            left: 0,
+                            bottom: 20,
                         }}
-                        formatter={(value) => [`${value} activities`, 'Count']}
-                        labelFormatter={(label) => label}
-                    />
-                    <Area
-                        type="monotone"
-                        dataKey="count"
-                        stroke="#6366F1"
-                        fill="#EEF2FF"
-                        strokeWidth={2}
-                    />
-                </AreaChart>
-            </ResponsiveContainer>
+                    >
+                        <defs>
+                            <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            stroke="rgba(156, 163, 175, 0.2)"
+                            className="dark:stroke-gray-700"
+                        />
+                        <XAxis
+                            dataKey="formattedDate"
+                            tick={{ fontSize: 12, fill: '#6B7280' }}
+                            tickLine={false}
+                            axisLine={false}
+                            dy={10}
+                            interval="preserveStartEnd"
+                            minTickGap={10}
+                            className="dark:text-gray-400"
+                        />
+                        <YAxis
+                            tick={{ fontSize: 12, fill: '#6B7280' }}
+                            tickLine={false}
+                            axisLine={false}
+                            allowDecimals={false}
+                            className="dark:text-gray-400"
+                        />
+                        <Tooltip
+                            contentStyle={{
+                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                borderRadius: '0.5rem',
+                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                                border: 'none',
+                                padding: '8px 12px',
+                            }}
+                            formatter={(value) => [`${value} activities`, 'Count']}
+                            labelFormatter={(label) => label}
+                            cursor={{ stroke: '#3b82f6', strokeWidth: 1, strokeDasharray: '3 3' }}
+                        />
+                        <Area
+                            type="monotone"
+                            dataKey="count"
+                            stroke="#3b82f6"
+                            strokeWidth={2}
+                            fill="url(#colorGradient)"
+                            activeDot={{
+                                r: 4,
+                                strokeWidth: 2,
+                                stroke: '#ffffff',
+                                fill: '#3b82f6'
+                            }}
+                        />
+                    </AreaChart>
+                </ResponsiveContainer>
+            </div>
+
+            <div className="flex justify-between mt-4 text-sm text-gray-500 dark:text-gray-400">
+                <div>
+                    Total: <span className="font-medium text-gray-900 dark:text-white">{totalActivities} activities</span>
+                </div>
+                <div>
+                    Average: <span className="font-medium text-gray-900 dark:text-white">{averageActivities.toFixed(1)} per day</span>
+                </div>
+            </div>
         </div>
     );
 }
