@@ -150,7 +150,15 @@ export default function Dashboard({ stats, categoryDistribution, recentActivitie
             <TabsContent value="overview" className="space-y-4 animate-in fade-in-50 duration-300">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Only show Activity Trends if user has permission */}
+
                 <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <LineChartIcon className="h-4 w-4 mr-2" />
+                      Activity Trend
+                    </CardTitle>
+                    <CardDescription>User activities over time</CardDescription>
+                  </CardHeader>
                   <CardContent>
                     <ActivityTrendChart data={activityTrends} />
                   </CardContent>

@@ -51,13 +51,7 @@ export function ActivityTrendChart({ data }: ActivityTrendChartProps) {
         <div className="rounded-lg shadow-sm p-4">
             <div className="flex justify-between items-center mb-4">
                 <div>
-                    <div className="flex items-center">
-                        <LineChartIcon className="h-4 w-4 mr-2" />
-                        <h3 className="font-medium text-gray-900 dark:text-white">Activity Trend</h3>
-                    </div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        User activities over time
-                    </p>
+
                 </div>
 
                 <div className="flex space-x-1">
