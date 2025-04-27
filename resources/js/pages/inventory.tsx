@@ -171,6 +171,7 @@ export default function Inventory({
   const [maxPriceFilter, setMaxPriceFilter] = useState(filters.maxPrice);
   const [perPage, setPerPage] = useState(filters?.perPage || 10);
 
+
   const { data, setData, post, put, processing, errors, reset } = useForm({ ...initialFormState });
   const { delete: destroy } = useForm();
 
@@ -237,13 +238,6 @@ export default function Inventory({
   };
 
   const resetFilters = () => {
-    setSearchTerm('');
-    setCategoryFilter('all');
-    setStatusFilter('all');
-    setMinPriceFilter('');
-    setMaxPriceFilter('');
-    setPerPage(10);
-
     router.visit('/inventory', {
       method: 'get',
       preserveState: true,
@@ -252,26 +246,6 @@ export default function Inventory({
         setIsFilterOpen(false);
         setIsLoading(false);
       }
-    });
-  };
-
-  const handlePerPageChange = (value: string) => {
-    const newPerPage = parseInt(value);
-    setPerPage(newPerPage);
-
-    router.visit('/inventory', {
-      method: 'get',
-      data: {
-        search: searchTerm,
-        category: categoryFilter,
-        status: statusFilter,
-        minPrice: minPriceFilter,
-        maxPrice: maxPriceFilter,
-        perPage: newPerPage,
-        page: 1,
-      },
-      preserveState: true,
-      preserveScroll: true,
     });
   };
 
@@ -328,8 +302,6 @@ export default function Inventory({
       },
     });
   };
-
-
 
   const handleDeleteItem = (id: number) => {
     setItemToDelete(id);
