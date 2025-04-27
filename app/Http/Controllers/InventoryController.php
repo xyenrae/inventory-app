@@ -47,11 +47,17 @@ class InventoryController extends Controller
 
         $query = Item::query()->with('category');
 
+        // Filter out items with inactive categories
+        $query->whereHas('category', function ($q) {
+            $q->where('status', 'active');
+        });
+
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhereHas('category', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
+                        $q->where('name', 'like', "%{$search}%")
+                            ->where('status', 'active');
                     });
             });
         }
@@ -88,7 +94,7 @@ class InventoryController extends Controller
                 'links' => $items->linkCollection()->toArray()
             ],
             'filters' => $request->only(['search', 'category', 'status', 'minPrice', 'maxPrice', 'perPage']),
-            'categories' => Category::all()->map(fn($cat) => [
+            'categories' => Category::where('status', 'active')->get()->map(fn($cat) => [
                 'id' => $cat->id,
                 'name' => $cat->name
             ]),
@@ -105,7 +111,7 @@ class InventoryController extends Controller
         $this->authorize('create', Item::class);
 
         return Inertia::render('inventory', [
-            'categories' => Category::select('id', 'name')->get(),
+            'categories' => Category::where('status', 'active')->select('id', 'name')->get(),
         ]);
     }
 
@@ -140,7 +146,7 @@ class InventoryController extends Controller
 
         return Inertia::render('inventory', [
             'item' => $inventory->load('category'),
-            'categories' => Category::select('id', 'name')->get(),
+            'categories' => Category::where('status', 'active')->select('id', 'name')->get(),
         ]);
     }
 
