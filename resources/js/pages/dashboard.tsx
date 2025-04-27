@@ -15,6 +15,7 @@ import {
   BarChart as BarChartIcon,
   AlertCircle
 } from 'lucide-react';
+import { toast } from "sonner";
 import { DashboardMetricCard } from '@/components/dashboard/DashboardMetricCard';
 import { RecentActivitiesList } from '@/components/dashboard/RecentActivitiesList';
 import { ActivityTrendChart } from '@/components/dashboard/ActivityTrendChart';
@@ -234,16 +235,6 @@ export default function Dashboard({ stats, categoryDistribution, recentActivitie
                 </CardContent>
               </Card>
             </div>
-
-            {stats.lowStockItems + stats.outOfStockItems > 0 && (
-              <Alert className="mt-4">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  You have {stats.lowStockItems} items with low stock and {stats.outOfStockItems} items out of stock.
-                  <a href="/inventory" className="font-medium underline ml-1">Check inventory</a>
-                </AlertDescription>
-              </Alert>
-            )}
           </TabsContent>
 
           {/* Only render Activity tab content if user has permission */}
