@@ -61,7 +61,7 @@ export function ActivityTrendChart({ data }: ActivityTrendChartProps) {
     }, [timeRange, data]);
 
     return (
-        <div className="rounded-lg shadow-sm">
+        <div>
             <div className="flex justify-between items-center mb-4">
                 <div>
 
