@@ -68,14 +68,6 @@ class UserSeeder extends Seeder
             'view categories',
             'create categories',
             'edit categories',
-
-            // Users
-            'view users',
-            'create users',
-            'edit users',
-
-            // Activity Logs
-            'view activity',
         ];
         Role::firstOrCreate(['name' => 'staff'])
             ->syncPermissions($staffPermissions);
