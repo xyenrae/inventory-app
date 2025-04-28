@@ -20,7 +20,7 @@ import { DashboardMetricCard } from '@/components/dashboard/DashboardMetricCard'
 import { RecentActivitiesList } from '@/components/dashboard/RecentActivitiesList';
 import { ActivityTrendChart } from '@/components/dashboard/ActivityTrendChart';
 import { InventoryStatusChart } from '@/components/dashboard/InventoryStatusChart';
-import { CategoryDistributionChart } from '@/components/dashboard/CategoryDistributionChart';
+import BulletCategoryChart from '@/components/dashboard/BulletCategoryChart';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 
@@ -188,7 +188,7 @@ export default function Dashboard({ stats, categoryDistribution, recentActivitie
                     <CardDescription>Items by category</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <CategoryDistributionChart data={categoryDistribution} />
+                    <BulletCategoryChart data={categoryDistribution} />
                   </CardContent>
                 </Card>
 
@@ -239,7 +239,7 @@ export default function Dashboard({ stats, categoryDistribution, recentActivitie
                   <CardDescription>Items by category</CardDescription>
                 </CardHeader>
                 <CardContent className="h-80">
-                  <CategoryDistributionChart data={categoryDistribution} />
+                  <BulletCategoryChart data={categoryDistribution} />
                 </CardContent>
               </Card>
             </div>

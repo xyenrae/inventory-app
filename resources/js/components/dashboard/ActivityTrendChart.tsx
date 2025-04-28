@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { format, parseISO } from 'date-fns';
-import { LineChartIcon } from 'lucide-react';
+import { TooltipProps } from 'recharts';
 
 interface ActivityData {
     date: string;
@@ -16,6 +16,19 @@ interface ActivityTrendChartProps {
         'all': ActivityData[];
     };
 }
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="rounded-lg p-3 shadow-md bg-gray-900 text-white dark:bg-white dark:text-gray-900">
+                <p className="text-sm font-semibold">{label}</p>
+                <p className="text-xs">{payload[0].value} activities</p>
+            </div>
+        );
+    }
+
+    return null;
+};
 
 export function ActivityTrendChart({ data }: ActivityTrendChartProps) {
     const [timeRange, setTimeRange] = useState<'7D' | '30D' | '90D' | 'All'>('7D');
@@ -48,7 +61,7 @@ export function ActivityTrendChart({ data }: ActivityTrendChartProps) {
     }, [timeRange, data]);
 
     return (
-        <div className="rounded-lg shadow-sm p-4">
+        <div className="rounded-lg shadow-sm">
             <div className="flex justify-between items-center mb-4">
                 <div>
 
@@ -104,6 +117,7 @@ export function ActivityTrendChart({ data }: ActivityTrendChartProps) {
                             left: 0,
                             bottom: 20,
                         }}
+
                     >
                         <defs>
                             <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
@@ -115,7 +129,7 @@ export function ActivityTrendChart({ data }: ActivityTrendChartProps) {
                             strokeDasharray="3 3"
                             vertical={false}
                             stroke="rgba(156, 163, 175, 0.2)"
-                            className="dark:stroke-gray-700"
+                            className="stroke-gray-400 dark:stroke-gray-700"
                         />
                         <XAxis
                             dataKey="formattedDate"
@@ -132,18 +146,12 @@ export function ActivityTrendChart({ data }: ActivityTrendChartProps) {
                             tickLine={false}
                             axisLine={false}
                             allowDecimals={false}
+                            tickMargin={0}
+                            width={20}
                             className="dark:text-gray-400"
                         />
                         <Tooltip
-                            contentStyle={{
-                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                borderRadius: '0.5rem',
-                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                                border: 'none',
-                                padding: '8px 12px',
-                            }}
-                            formatter={(value) => [`${value} activities`, 'Count']}
-                            labelFormatter={(label) => label}
+                            content={<CustomTooltip />}
                             cursor={{ stroke: '#3b82f6', strokeWidth: 1, strokeDasharray: '3 3' }}
                         />
                         <Area
