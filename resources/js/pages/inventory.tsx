@@ -50,7 +50,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from "sonner";
 import { Item, Filters, Pagination } from '@/types/inventory';
-
+import ExportDropdown from '@/components/export-dropdown';
 
 interface Props {
   items: Item[];
@@ -350,116 +350,118 @@ export default function Inventory({
       <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Inventory Management</h1>
-          {canCreateItems && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button className="flex items-center cursor-pointer" onClick={openAddDialog}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Item
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Add New Item</DialogTitle>
-                        <DialogDescription>
-                          Fill in the details to add a new inventory item.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="name">Item Name</Label>
-                          <Input
-                            id="name"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            placeholder="Enter item name"
-                          />
-                          {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="category">Category</Label>
-                          <Select
-                            value={data.category_id?.toString() || ''}
-                            onValueChange={(value) => setData('category_id', parseInt(value))}
-                          >
-                            <SelectTrigger id="category">
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {categories.map(category => (
-                                <SelectItem key={category.id} value={String(category.id)}>
-                                  {category.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {errors.category_id && <p className="text-sm text-red-500">{errors.category_id}</p>}
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="grid gap-2">
-                            <Label htmlFor="quantity">Quantity</Label>
-                            <Input
-                              id="quantity"
-                              type="number"
-                              min="0"
-                              className="w-full [&::-webkit-inner-spin-button]:appearance-none"
-                              value={data.quantity}
-                              placeholder="0"
-                              onChange={(e) => setData('quantity', parseInt(e.target.value || '0'))}
-                            />
-                            {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="price">Price (IDR)</Label>
-                            <Input
-                              id="price"
-                              type="number"
-                              min="0"
-                              className="w-full [&::-webkit-inner-spin-button]:appearance-none"
-                              value={data.price}
-                              onChange={(e) => setData('price', parseInt(e.target.value || '0'))}
-                              placeholder="0"
-                            />
-                            {errors.price && <p className="text-sm text-red-500">{errors.price}</p>}
-                          </div>
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="status">Status</Label>
-                          <Select
-                            value={data.status}
-                            onValueChange={(value) => setData('status', value)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {statusOptions.map(option => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {errors.status && <p className="text-sm text-red-500">{errors.status}</p>}
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button onClick={handleAddItem} disabled={processing} className="cursor-pointer">
+          <div className='md:flex'>
+            <ExportDropdown filters={filters} />
+            {canCreateItems && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="flex items-center cursor-pointer mt-2 md:mt-0" onClick={openAddDialog}>
+                          <Plus className="h-4 w-4 mr-2" />
                           Add Item
                         </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Add a new inventory item</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Add New Item</DialogTitle>
+                          <DialogDescription>
+                            Fill in the details to add a new inventory item.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="name">Item Name</Label>
+                            <Input
+                              id="name"
+                              value={data.name}
+                              onChange={(e) => setData('name', e.target.value)}
+                              placeholder="Enter item name"
+                            />
+                            {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="category">Category</Label>
+                            <Select
+                              value={data.category_id?.toString() || ''}
+                              onValueChange={(value) => setData('category_id', parseInt(value))}
+                            >
+                              <SelectTrigger id="category">
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {categories.map(category => (
+                                  <SelectItem key={category.id} value={String(category.id)}>
+                                    {category.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {errors.category_id && <p className="text-sm text-red-500">{errors.category_id}</p>}
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="grid gap-2">
+                              <Label htmlFor="quantity">Quantity</Label>
+                              <Input
+                                id="quantity"
+                                type="number"
+                                min="0"
+                                className="w-full [&::-webkit-inner-spin-button]:appearance-none"
+                                value={data.quantity}
+                                placeholder="0"
+                                onChange={(e) => setData('quantity', parseInt(e.target.value || '0'))}
+                              />
+                              {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
+                            </div>
+                            <div className="grid gap-2">
+                              <Label htmlFor="price">Price (IDR)</Label>
+                              <Input
+                                id="price"
+                                type="number"
+                                min="0"
+                                className="w-full [&::-webkit-inner-spin-button]:appearance-none"
+                                value={data.price}
+                                onChange={(e) => setData('price', parseInt(e.target.value || '0'))}
+                                placeholder="0"
+                              />
+                              {errors.price && <p className="text-sm text-red-500">{errors.price}</p>}
+                            </div>
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="status">Status</Label>
+                            <Select
+                              value={data.status}
+                              onValueChange={(value) => setData('status', value)}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select status" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {statusOptions.map(option => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {errors.status && <p className="text-sm text-red-500">{errors.status}</p>}
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button onClick={handleAddItem} disabled={processing} className="cursor-pointer">
+                            Add Item
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Add a new inventory item</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}</div>
         </div>
 
         <Card>

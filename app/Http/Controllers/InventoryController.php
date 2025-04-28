@@ -9,8 +9,12 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Gate;
-
 use Illuminate\Routing\Controller;
+
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ItemsExport;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class InventoryController extends Controller
 {
@@ -176,5 +180,98 @@ class InventoryController extends Controller
 
         return redirect()->back()
             ->with('success', 'Item deleted successfully');
+    }
+
+    /**
+     * Export items to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $this->authorize('viewAny', Item::class);
+
+        $validated = $this->validateExportRequest($request);
+        $items = $this->getFilteredItems($validated);
+
+        return Excel::download(new ItemsExport($items), 'inventory_items.xlsx');
+    }
+
+    /**
+     * Export items to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $this->authorize('viewAny', Item::class);
+
+        $validated = $this->validateExportRequest($request);
+        $items = $this->getFilteredItems($validated);
+
+        $pdf = PDF::loadView('exports.items-pdf', [
+            'items' => $items,
+            'generatedAt' => now()->format('F d, Y H:i:s'),
+        ]);
+
+        return $pdf->download('inventory_items.pdf');
+    }
+
+    /**
+     * Validate export request parameters
+     */
+    private function validateExportRequest(Request $request)
+    {
+        return $request->validate([
+            'search' => 'nullable|string|max:255',
+            'category' => 'nullable|string',
+            'status' => 'nullable|string',
+            'minPrice' => 'nullable|string',
+            'maxPrice' => 'nullable|string',
+            'perPage' => 'nullable|integer|min:1|max:100',
+        ]);
+    }
+
+    /**
+     * Get filtered items based on request parameters
+     */
+    private function getFilteredItems($validated)
+    {
+        $search = $validated['search'] ?? '';
+        $category = $validated['category'] ?? 'all';
+        $status = $validated['status'] ?? 'all';
+        $minPrice = $validated['minPrice'] ?? null;
+        $maxPrice = $validated['maxPrice'] ?? null;
+
+        $query = Item::query()->with('category');
+
+        // Filter out items with inactive categories
+        $query->whereHas('category', function ($q) {
+            $q->where('status', 'active');
+        });
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('category', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->where('status', 'active');
+                    });
+            });
+        }
+
+        if ($category !== 'all' && is_numeric($category)) {
+            $query->where('category_id', $category);
+        }
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        if (!empty($minPrice)) {
+            $query->where('price', '>=', (float) $minPrice);
+        }
+
+        if (!empty($maxPrice)) {
+            $query->where('price', '<=', (float) $maxPrice);
+        }
+
+        return $query->orderBy('updated_at', 'desc')->get();
     }
 }
