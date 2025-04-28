@@ -32,11 +32,11 @@ export function RecentActivitiesList({ activities, title = "Recent Activities" }
             return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
         }
 
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+        return 'bg-gray-200 text-gray-800 dark:bg-sidebar-accent dark:text-gray-300';
     };
 
     return (
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md transition duration-200">
+        <div>
             <div className="space-y-3">
                 {activities.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
@@ -49,10 +49,10 @@ export function RecentActivitiesList({ activities, title = "Recent Activities" }
                     activities.map((activity) => (
                         <div
                             key={activity.id}
-                            className="flex items-start gap-3 p-3 border-b border-gray-100 dark:border-gray-800 last:border-0 rounded-lg bg-gray-50 dark:bg-gray-850"
+                            className="flex items-start gap-3 p-3 border-b border-gray-200 dark:border-gray-800 last:border-0 rounded-lg"
                         >
                             {/* Activity Icon - adjust based on log_name */}
-                            <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-800">
+                            <div className="p-2 rounded-full bg-gray-200 dark:bg-sidebar-accent">
                                 {activity.log_name.toLowerCase().includes('create') && (
                                     <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>

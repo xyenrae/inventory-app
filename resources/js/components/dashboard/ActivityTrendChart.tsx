@@ -72,7 +72,7 @@ export function ActivityTrendChart({ data }: ActivityTrendChartProps) {
                         onClick={() => setTimeRange('7D')}
                         className={`px-3 py-1 rounded-md text-sm ${timeRange === '7D'
                             ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
-                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'
                             }`}
                     >
                         7D
@@ -81,7 +81,7 @@ export function ActivityTrendChart({ data }: ActivityTrendChartProps) {
                         onClick={() => setTimeRange('30D')}
                         className={`px-3 py-1 rounded-md text-sm ${timeRange === '30D'
                             ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
-                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'
                             }`}
                     >
                         30D
@@ -90,7 +90,7 @@ export function ActivityTrendChart({ data }: ActivityTrendChartProps) {
                         onClick={() => setTimeRange('90D')}
                         className={`px-3 py-1 rounded-md text-sm ${timeRange === '90D'
                             ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
-                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'
                             }`}
                     >
                         90D
@@ -99,7 +99,7 @@ export function ActivityTrendChart({ data }: ActivityTrendChartProps) {
                         onClick={() => setTimeRange('All')}
                         className={`px-3 py-1 rounded-md text-sm ${timeRange === 'All'
                             ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
-                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'
                             }`}
                     >
                         All

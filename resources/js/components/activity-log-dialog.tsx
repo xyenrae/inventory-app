@@ -54,7 +54,7 @@ const getDescriptionBadgeColor = (description: string) => {
     } else if (description.startsWith("Deleted")) {
         return "border-red-200 bg-red-100 text-red-800";
     }
-    return "border-gray-200 bg-gray-100 text-gray-800";
+    return "border-gray-200 bg-gray-200 text-gray-800";
 };
 
 export function ActivityLogDialog({ isOpen, onClose, currentLog }: ActivityLogDialogProps) {

@@ -823,7 +823,7 @@ export default function Categories({
                   <Badge
                     className={`text-sm w-fit ${currentCategory.status === 'Active'
                       ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                      : 'bg-gray-200 text-gray-800 hover:bg-gray-200'
                       }`}
                     variant="outline"
                   >

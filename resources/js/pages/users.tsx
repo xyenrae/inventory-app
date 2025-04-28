@@ -629,7 +629,7 @@ export default function Users({
                                       ? 'bg-purple-100 text-purple-800 hover:bg-purple-200'
                                       : role.name === 'staff'
                                         ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                                        : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-200'
                                       }`}
                                     variant="outline"
                                   >
@@ -933,7 +933,7 @@ export default function Users({
                           ? 'bg-purple-100 text-purple-800 hover:bg-purple-200'
                           : role.name === 'staff'
                             ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                            : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                            : 'bg-gray-200 text-gray-800 hover:bg-gray-200'
                           }`}
                         variant="outline"
                       >

@@ -226,7 +226,7 @@ export default function ActivityLogs({
     } else if (description.includes('login')) {
       return 'bg-purple-100 text-purple-800 hover:bg-purple-200';
     } else {
-      return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
+      return 'bg-gray-200 text-gray-800 hover:bg-gray-200';
     }
   };
 

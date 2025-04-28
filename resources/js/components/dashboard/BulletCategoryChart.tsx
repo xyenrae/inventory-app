@@ -73,8 +73,7 @@ const BulletCategoryChart = ({
     }
 
     return (
-        <div className={`bg-white dark:bg-gray-800 rounded-lg shadow ${className}`}>
-
+        <div>
             <div className="relative">
                 {isLoading ? (
                     <div className="h-64 flex items-center justify-center">
@@ -92,7 +91,7 @@ const BulletCategoryChart = ({
                                         {item.count.toLocaleString()} ({item.percentage}%)
                                     </span>
                                 </div>
-                                <div className="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                <div className="h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                                     <div
                                         className="h-full rounded-full transition-all duration-1000 ease-out"
                                         style={{
