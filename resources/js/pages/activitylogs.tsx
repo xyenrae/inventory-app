@@ -104,20 +104,31 @@ export default function ActivityLogs({
 
     setIsLoading(true);
 
-    router.get('/activitylogs', {
-      search: searchTerm,
-      log_name: logNameFilter,
-      start_date: startDateFilter,
-      end_date: endDateFilter,
-      causer_id: causerFilter,
-      perPage: perPage,
+    // Construct parameters consistently with applyFilters
+    const params = {
+      search: searchTerm || undefined,
+      log_name: logNameFilter !== 'all' ? logNameFilter : undefined,
+      start_date: startDateFilter || undefined,
+      end_date: endDateFilter || undefined,
+      causer_id: causerFilter !== 'all' ? causerFilter : undefined,
+      perPage: perPage !== 10 ? perPage : undefined,
       page: page,
-    }, {
+    };
+
+    router.visit('/activitylogs', {
+      method: 'get',
+      data: params,
       preserveState: true,
       preserveScroll: true,
       onSuccess: () => {
         setIsLoading(false);
-      }
+      },
+      onError: () => {
+        setIsLoading(false);
+      },
+      onFinish: () => {
+        setIsLoading(false);
+      },
     });
   };
 
@@ -510,7 +521,7 @@ export default function ActivityLogs({
                               </div>
                             </TableCell>
                             <TableCell>
-                              {formatBrowserInfo(log.properties.user_agent)}
+                              {log.properties ? formatBrowserInfo(log.properties.user_agent) : 'Unknown'}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end space-x-2">
