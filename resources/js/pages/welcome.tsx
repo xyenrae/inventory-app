@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { LineChart, ShieldCheck, Users } from 'lucide-react'; // ganti icon yang lebih sesuai
+import { LineChart, ShieldCheck, Users } from 'lucide-react';
 import { Copyright } from 'lucide-react';
 
 export default function Welcome({ title = 'Welcome', children }: { title?: string, children?: React.ReactNode }) {

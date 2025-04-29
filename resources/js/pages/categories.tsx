@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
-import { Plus, Search, Filter, Edit, Trash2, Eye, Clock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Plus, Search, Filter, Edit, Trash2, Eye, Clock } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { Package, Folder } from 'lucide-react';
+import { Folder } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -190,23 +190,6 @@ export default function Categories({
     });
   };
 
-  const handlePerPageChange = (value: string) => {
-    const newPerPage = parseInt(value);
-    setPerPage(newPerPage);
-
-    router.visit('/categories', {
-      method: 'get',
-      data: {
-        search: searchTerm,
-        status: statusFilter,
-        perPage: newPerPage,
-        page: 1, // Reset to first page when changing items per page
-      },
-      preserveState: true,
-      preserveScroll: true,
-    });
-  };
-
   const handleAddCategory = () => {
     post('/categories', {
       onSuccess: () => {
@@ -279,46 +262,6 @@ export default function Categories({
   const handleCloseEditDialog = () => {
     setIsEditDialogOpen(false);
     setCurrentCategory(null);
-  };
-
-  // Generate pagination range
-  const getPaginationRange = () => {
-    if (!pagination) return [1];
-
-    const currentPage = pagination.current_page;
-    const lastPage = pagination.last_page;
-    const delta = 2; // Number of pages to show before and after current page
-
-    let range = [];
-
-    // Always show first page
-    range.push(1);
-
-    // Calculate start and end of the range
-    const rangeStart = Math.max(2, currentPage - delta);
-    const rangeEnd = Math.min(lastPage - 1, currentPage + delta);
-
-    // Add ellipsis after first page if needed
-    if (rangeStart > 2) {
-      range.push(-1); // -1 represents ellipsis
-    }
-
-    // Add pages in the middle
-    for (let i = rangeStart; i <= rangeEnd; i++) {
-      range.push(i);
-    }
-
-    // Add ellipsis before last page if needed
-    if (rangeEnd < lastPage - 1) {
-      range.push(-2); // -2 represents ellipsis (using different value to avoid React key issues)
-    }
-
-    // Always show last page if it's not the first page
-    if (lastPage > 1) {
-      range.push(lastPage);
-    }
-
-    return range;
   };
 
   // Sync local state with props

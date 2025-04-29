@@ -93,11 +93,13 @@ const PaginationFooter: React.FC<PaginationFooterProps> = ({
                     <Select
                         value={perPage?.toString() ?? "10"}
                         onValueChange={(value) => {
-                            setPerPage(Number(value));
+                            const newPerPage = Number(value);
+                            setPerPage(newPerPage);
+
+                            // Hanya kirim perPage dan page untuk mencegah error 302
                             router.visit(route(route().current()!), {
                                 data: {
-                                    ...filters,
-                                    perPage: Number(value),
+                                    perPage: newPerPage,
                                     page: 1,
                                 },
                             });

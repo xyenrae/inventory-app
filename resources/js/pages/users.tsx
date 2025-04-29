@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Head, useForm, router, usePage } from '@inertiajs/react';
-import { Plus, Search, Filter, Edit, Trash2, Eye, Clock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, AlertCircle } from 'lucide-react';
+import { Plus, Search, Filter, Edit, Trash2, Eye, Clock, AlertCircle } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
@@ -121,9 +121,6 @@ const initialFormState: UserForm = {
   role: 'staff',
 };
 
-// Per page options
-const perPageOptions = [10, 20, 50, 100];
-
 export default function Users({
   users = [],
   roles = [],
@@ -236,23 +233,6 @@ export default function Users({
     });
   };
 
-  const handlePerPageChange = (value: string) => {
-    const newPerPage = parseInt(value);
-    setPerPage(newPerPage);
-
-    router.visit('/users', {
-      method: 'get',
-      data: {
-        search: searchTerm,
-        role: roleFilter,
-        perPage: newPerPage,
-        page: 1, // Reset to first page when changing items per page
-      },
-      preserveState: true,
-      preserveScroll: true,
-    });
-  };
-
   const handleAddUser = () => {
     post('/users', {
       onSuccess: () => {
@@ -305,10 +285,8 @@ export default function Users({
       onSuccess: () => {
         setShowDeleteDialog(false);
         setUserToDelete(null);
-        // Success message is handled by the flash message
       },
       onError: (errors) => {
-        // Standard validation errors
         setShowDeleteDialog(false);
         toast.error('Failed to delete user.');
       }
@@ -326,46 +304,6 @@ export default function Users({
     setCurrentUser(null);
   };
 
-  // Generate pagination range
-  const getPaginationRange = () => {
-    if (!pagination) return [1];
-
-    const currentPage = pagination.current_page;
-    const lastPage = pagination.last_page;
-    const delta = 2; // Number of pages to show before and after current page
-
-    let range = [];
-
-    // Always show first page
-    range.push(1);
-
-    // Calculate start and end of the range
-    const rangeStart = Math.max(2, currentPage - delta);
-    const rangeEnd = Math.min(lastPage - 1, currentPage + delta);
-
-    // Add ellipsis after first page if needed
-    if (rangeStart > 2) {
-      range.push(-1); // -1 represents ellipsis
-    }
-
-    // Add pages in the middle
-    for (let i = rangeStart; i <= rangeEnd; i++) {
-      range.push(i);
-    }
-
-    // Add ellipsis before last page if needed
-    if (rangeEnd < lastPage - 1) {
-      range.push(-2); // -2 represents ellipsis (using different value to avoid React key issues)
-    }
-
-    // Always show last page if it's not the first page
-    if (lastPage > 1) {
-      range.push(lastPage);
-    }
-
-    return range;
-  };
-
   // Sync local state with props
   useEffect(() => {
     setSearchTerm(filters.search);
@@ -376,7 +314,6 @@ export default function Users({
   useEffect(() => {
     if (flash?.error) {
       toast.error(flash.error);
-      // If the delete dialog is open, also show the error there
       if (showDeleteDialog) {
         setDeleteError(flash.error);
       }

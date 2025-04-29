@@ -1,7 +1,5 @@
-import React from 'react';
 import { Head } from '@inertiajs/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   LayoutGrid,
@@ -15,7 +13,6 @@ import {
   BarChart as BarChartIcon,
   AlertCircle
 } from 'lucide-react';
-import { toast } from "sonner";
 import { DashboardMetricCard } from '@/components/dashboard/DashboardMetricCard';
 import { RecentActivitiesList } from '@/components/dashboard/RecentActivitiesList';
 import { ActivityTrendChart } from '@/components/dashboard/ActivityTrendChart';
