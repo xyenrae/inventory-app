@@ -51,6 +51,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from "sonner";
 import { Item, Filters, Pagination } from '@/types/inventory';
 import ExportDropdown from '@/components/export-dropdown';
+import PaginationFooter from '@/components/pagination-footer';
 
 interface Props {
   items: Item[];
@@ -759,144 +760,15 @@ export default function Inventory({
           </CardContent>
 
           {/* Pagination Footer */}
-          {pagination && pagination.total > 0 && (
-            <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t pt-4">
-              <div className="text-sm text-muted-foreground">
-                Showing <span className="font-medium">{pagination.from}</span> to{" "}
-                <span className="font-medium">{pagination.to}</span> of{" "}
-                <span className="font-medium">{pagination.total}</span> items
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="flex items-center">
-                  <Select
-                    value={perPage?.toString() ?? '10'}
-                    onValueChange={(value) => {
-                      setPerPage(Number(value));
-                      router.visit('/inventory', {
-                        data: {
-                          ...filters,
-                          perPage: Number(value),
-                          page: 1
-                        }
-                      });
-                    }}
-                  >
-                    <SelectTrigger className="h-8 w-[70px]">
-                      <SelectValue placeholder={(perPage || 10).toString()} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {perPageOptions.map(option => (
-                        <SelectItem key={option} value={option.toString()}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <span className="ml-2 text-sm text-muted-foreground">per page</span>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(1)}
-                          disabled={pagination.current_page === 1 || isLoading}
-                        >
-                          <ChevronsLeft className="h-4 w-4" />
-                          <span className="sr-only">First page</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>First page</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(pagination.current_page - 1)}
-                          disabled={pagination.current_page === 1 || isLoading}
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                          <span className="sr-only">Previous page</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Previous page</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <div className="hidden sm:flex items-center space-x-1">
-                    {getPaginationRange().map((page, index) => (
-                      page < 0 ? (
-                        <span key={`ellipsis-${index}`} className="px-2">...</span>
-                      ) : (
-                        <Button
-                          key={page}
-                          variant={pagination.current_page === page ? "default" : "outline"}
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(page)}
-                          disabled={isLoading}
-                        >
-                          {page}
-                        </Button>
-                      )
-                    ))}
-                  </div>
-
-                  <div className="sm:hidden">
-                    <span className="text-sm font-medium">
-                      Page {pagination.current_page} of {pagination.last_page}
-                    </span>
-                  </div>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(pagination.current_page + 1)}
-                          disabled={pagination.current_page === pagination.last_page || isLoading}
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                          <span className="sr-only">Next page</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Next page</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => goToPage(pagination.last_page)}
-                          disabled={pagination.current_page === pagination.last_page || isLoading}
-                        >
-                          <ChevronsRight className="h-4 w-4" />
-                          <span className="sr-only">Last page</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Last page</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
-            </CardFooter>
-          )}
+          <PaginationFooter
+            pagination={pagination}
+            perPage={perPage}
+            perPageOptions={[10, 25, 50, 100]}
+            filters={filters}
+            isLoading={isLoading}
+            goToPage={goToPage}
+            setPerPage={setPerPage}
+          />
         </Card>
 
         {/* View Item Dialog */}
