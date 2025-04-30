@@ -15,6 +15,7 @@ export interface User {
 
 export interface Auth {
   user: User;
+  role: 'admin' | 'staff' | 'viewer';
 }
 
 /** ========== Layout & Navigation ========== */
