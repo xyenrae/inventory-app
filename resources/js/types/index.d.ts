@@ -35,7 +35,9 @@ export interface NavItem {
   href: string;
   icon?: LucideIcon | null;
   isActive?: boolean;
+  visible?: (auth: Auth) => boolean;  // Add the 'visible' property
 }
+
 
 export interface NavGroup {
   title: string;
