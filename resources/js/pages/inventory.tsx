@@ -409,7 +409,7 @@ export default function Inventory({
                                 type="number"
                                 min="0"
                                 className="w-full [&::-webkit-inner-spin-button]:appearance-none"
-                                value={data.quantity}
+                                value={data.quantity === 0 ? "" : data.quantity}
                                 placeholder="0"
                                 onChange={(e) => setData('quantity', parseInt(e.target.value || '0'))}
                               />
@@ -422,7 +422,7 @@ export default function Inventory({
                                 type="number"
                                 min="0"
                                 className="w-full [&::-webkit-inner-spin-button]:appearance-none"
-                                value={data.price}
+                                value={data.price === 0 ? "" : data.price}
                                 onChange={(e) => setData('price', parseInt(e.target.value || '0'))}
                                 placeholder="0"
                               />
