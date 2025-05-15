@@ -335,7 +335,8 @@ export default function ActivityLogs({
                                     <SelectContent>
                                       <SelectItem value="all">All logs</SelectItem>
                                       {log_names.map((logName) => (
-                                        <SelectItem key={logName} value={logName}>
+                                        <SelectItem key={logName} value={logName} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                        >
                                           {logName.charAt(0).toUpperCase() + logName.slice(1)}
                                         </SelectItem>
                                       ))}
@@ -353,7 +354,8 @@ export default function ActivityLogs({
                                     <SelectContent>
                                       <SelectItem value="all">All users</SelectItem>
                                       {users.map((user) => (
-                                        <SelectItem key={user.id} value={user.id.toString()}>
+                                        <SelectItem key={user.id} value={user.id.toString()} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                        >
                                           {user.name}
                                         </SelectItem>
                                       ))}
@@ -385,7 +387,7 @@ export default function ActivityLogs({
 
                                 {/* Apply Filters */}
                                 <Button
-                                  className="w-full mt-4"
+                                  className="w-full mt-4 hover:cursor-pointer"
                                   onClick={() => {
                                     applyFilters();
                                     setIsFilterOpen(false);

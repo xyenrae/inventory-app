@@ -415,7 +415,8 @@ export default function Users({
                             </SelectTrigger>
                             <SelectContent>
                               {roles.map(role => (
-                                <SelectItem key={role.id} value={role.name}>
+                                <SelectItem key={role.id} value={role.name} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                >
                                   {role.name}
                                 </SelectItem>
                               ))}
@@ -504,7 +505,8 @@ export default function Users({
                                     <SelectContent>
                                       <SelectItem value="all">All roles</SelectItem>
                                       {roles.map((role) => (
-                                        <SelectItem key={role.id} value={role.name}>
+                                        <SelectItem key={role.id} value={role.name} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                        >
                                           {role.name}
                                         </SelectItem>
                                       ))}
@@ -514,7 +516,7 @@ export default function Users({
 
                                 {/* Apply button */}
                                 <Button
-                                  className="w-full mt-4"
+                                  className="w-full mt-4 hover:cursor-pointer"
                                   onClick={() => {
                                     applyFilters();
                                     setIsFilterOpen(false);
@@ -898,7 +900,8 @@ export default function Users({
                     </SelectTrigger>
                     <SelectContent>
                       {roles.map(role => (
-                        <SelectItem key={role.id} value={role.name}>
+                        <SelectItem key={role.id} value={role.name} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                        >
                           {role.name}
                         </SelectItem>
                       ))}

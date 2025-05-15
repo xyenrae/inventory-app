@@ -367,7 +367,7 @@ export default function Inventory({
                               </SelectTrigger>
                               <SelectContent>
                                 {categories.map(category => (
-                                  <SelectItem key={category.id} value={String(category.id)} className='cursor-pointer hover:bg-sidebar-accent border-b-2'>
+                                  <SelectItem key={category.id} value={String(category.id)} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'>
                                     {category.name}
                                   </SelectItem>
                                 ))}
@@ -386,7 +386,9 @@ export default function Inventory({
                               </SelectTrigger>
                               <SelectContent>
                                 {rooms.map(room => (
-                                  <SelectItem key={room.id} value={String(room.id)} className='cursor-pointer hover:bg-sidebar-accent border-b-2'>
+                                  <SelectItem key={room.id} value={String(room.id)}
+                                    className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                  >
                                     {room.display_name}
                                   </SelectItem>
                                 ))}
@@ -433,7 +435,8 @@ export default function Inventory({
                               </SelectTrigger>
                               <SelectContent>
                                 {statusOptions.map(option => (
-                                  <SelectItem key={option.value} value={option.value}>
+                                  <SelectItem key={option.value} value={option.value} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                  >
                                     {option.label}
                                   </SelectItem>
                                 ))}
@@ -527,7 +530,8 @@ export default function Inventory({
                                 <SelectContent>
                                   <SelectItem value="all">All categories</SelectItem>
                                   {categories.map((category) => (
-                                    <SelectItem key={category.id} value={String(category.id)}>
+                                    <SelectItem key={category.id} value={String(category.id)} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                    >
                                       {category.name}
                                     </SelectItem>
                                   ))}
@@ -547,7 +551,8 @@ export default function Inventory({
                                 <SelectContent>
                                   <SelectItem value="all">All rooms</SelectItem>
                                   {rooms.map((room) => (
-                                    <SelectItem key={room.id} value={String(room.id)}>
+                                    <SelectItem key={room.id} value={String(room.id)} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                    >
                                       {room.display_name}
                                     </SelectItem>
                                   ))}
@@ -568,7 +573,8 @@ export default function Inventory({
                                 <SelectContent>
                                   <SelectItem value="all">All statuses</SelectItem>
                                   {statusOptions.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
+                                    <SelectItem key={option.value} value={option.value} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                    >
                                       {option.label}
                                     </SelectItem>
                                   ))}
@@ -606,7 +612,7 @@ export default function Inventory({
 
                             {/* Apply Filters Button */}
                             <Button
-                              className="w-full mt-4"
+                              className="w-full mt-4 hover:cursor-pointer"
                               onClick={() => {
                                 applyFilters();
                                 setIsFilterOpen(false);
@@ -945,7 +951,8 @@ export default function Inventory({
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map(category => (
-                        <SelectItem key={category.id} value={String(category.id)}>
+                        <SelectItem key={category.id} value={String(category.id)} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                        >
                           {category.name}
                         </SelectItem>
                       ))}
@@ -964,7 +971,8 @@ export default function Inventory({
                     </SelectTrigger>
                     <SelectContent>
                       {rooms.map(room => (
-                        <SelectItem key={room.id} value={String(room.id)}>
+                        <SelectItem key={room.id} value={String(room.id)} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                        >
                           {room.display_name}
                         </SelectItem>
                       ))}
@@ -1011,7 +1019,8 @@ export default function Inventory({
                     </SelectTrigger>
                     <SelectContent>
                       {statusOptions.map(option => (
-                        <SelectItem key={option.value} value={option.value}>
+                        <SelectItem key={option.value} value={option.value} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                        >
                           {option.label}
                         </SelectItem>
                       ))}

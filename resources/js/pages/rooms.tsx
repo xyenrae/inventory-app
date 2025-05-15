@@ -363,7 +363,8 @@ export default function Rooms({
                                                         </SelectTrigger>
                                                         <SelectContent>
                                                             {statusOptions.map(option => (
-                                                                <SelectItem key={option.value} value={option.value}>
+                                                                <SelectItem key={option.value} value={option.value} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                                                >
                                                                     {option.label}
                                                                 </SelectItem>
                                                             ))}
@@ -450,7 +451,8 @@ export default function Rooms({
                                                                 <SelectContent>
                                                                     <SelectItem value="all">All statuses</SelectItem>
                                                                     {statusOptions.map((option) => (
-                                                                        <SelectItem key={option.value} value={option.value}>
+                                                                        <SelectItem key={option.value} value={option.value} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                                                        >
                                                                             {option.label}
                                                                         </SelectItem>
                                                                     ))}
@@ -460,7 +462,7 @@ export default function Rooms({
 
                                                         {/* Apply button */}
                                                         <Button
-                                                            className="w-full mt-4"
+                                                            className="w-full mt-4 hover:cursor-pointer"
                                                             onClick={() => {
                                                                 applyFilters();
                                                                 setIsFilterOpen(false);
@@ -819,7 +821,8 @@ export default function Rooms({
                                         </SelectTrigger>
                                         <SelectContent>
                                             {statusOptions.map(option => (
-                                                <SelectItem key={option.value} value={option.value}>
+                                                <SelectItem key={option.value} value={option.value} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                                >
                                                     {option.label}
                                                 </SelectItem>
                                             ))}
