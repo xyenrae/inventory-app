@@ -18,6 +18,12 @@ return new class extends Migration
                 ->constrained('categories')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
+            // Add room_id foreign key
+            $table->foreignId('room_id')
+                ->nullable()
+                ->constrained('rooms')
+                ->cascadeOnUpdate()
+                ->nullOnDelete();
             $table->integer('quantity')->default(0);
             $table->decimal('price', 10, 2)->default(0);
             $table->enum('status', ['In Stock', 'Low Stock', 'Out of Stock'])->default('In Stock');

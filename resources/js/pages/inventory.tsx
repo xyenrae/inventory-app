@@ -58,6 +58,12 @@ interface Props {
   pagination?: Pagination;
   filters: Filters;
   categories: { id: number; name: string }[];
+  rooms: {
+    id: number;
+    name: string;
+    location: string;
+    display_name: string;
+  }[];
   can?: {
     create: boolean;
     edit: boolean;
@@ -73,6 +79,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const initialFormState = {
   name: '',
   category_id: 0,
+  room_id: 0,
   quantity: 0,
   price: 0,
   status: 'In Stock' as string,
@@ -116,6 +123,7 @@ export default function Inventory({
     perPage: 10
   },
   categories = [],
+  rooms = [],
   can
 }: Props) {
   const canCreateItems = can?.create || false;
@@ -134,6 +142,7 @@ export default function Inventory({
   // Local state for filters
   const [searchTerm, setSearchTerm] = useState(filters.search);
   const [categoryFilter, setCategoryFilter] = useState(filters.category);
+  const [roomFilter, setRoomFilter] = useState(filters.room || 'all');
   const [statusFilter, setStatusFilter] = useState(filters.status);
   const [minPriceFilter, setMinPriceFilter] = useState(filters.minPrice);
   const [maxPriceFilter, setMaxPriceFilter] = useState(filters.maxPrice);
@@ -182,6 +191,7 @@ export default function Inventory({
     const params = {
       search: searchTerm,
       category: categoryFilter,
+      room: roomFilter !== 'all' ? roomFilter : undefined,
       status: statusFilter !== 'all' ? statusFilter : undefined,
       minPrice: minPriceFilter || undefined,
       maxPrice: maxPriceFilter || undefined,
@@ -216,6 +226,7 @@ export default function Inventory({
     setData({
       ...data,
       category_id: Number(data.category_id),
+      room_id: Number(data.room_id),
       quantity: Number(data.quantity),
       price: Number(data.price),
     });
@@ -235,6 +246,7 @@ export default function Inventory({
     setData({
       name: item.name,
       category_id: item.category_id,
+      room_id: item.room_id,
       quantity: item.quantity,
       price: item.price,
       status: item.status,
@@ -253,6 +265,7 @@ export default function Inventory({
     setData({
       ...data,
       category_id: Number(data.category_id),
+      room_id: Number(data.room_id),
       quantity: Number(data.quantity),
       price: Number(data.price),
     });
@@ -294,50 +307,11 @@ export default function Inventory({
     setCurrentItem(null);
   };
 
-  // Generate pagination range
-  const getPaginationRange = () => {
-    if (!pagination) return [1];
-
-    const currentPage = pagination.current_page;
-    const lastPage = pagination.last_page;
-    const delta = 2;
-
-    let range = [];
-
-    // Always show first page
-    range.push(1);
-
-    // Calculate start and end of the range
-    const rangeStart = Math.max(2, currentPage - delta);
-    const rangeEnd = Math.min(lastPage - 1, currentPage + delta);
-
-    // Add ellipsis after first page if needed
-    if (rangeStart > 2) {
-      range.push(-1); // -1 represents ellipsis
-    }
-
-    // Add pages in the middle
-    for (let i = rangeStart; i <= rangeEnd; i++) {
-      range.push(i);
-    }
-
-    // Add ellipsis before last page if needed
-    if (rangeEnd < lastPage - 1) {
-      range.push(-2); // -2 represents ellipsis (using different value to avoid React key issues)
-    }
-
-    // Always show last page if it's not the first page
-    if (lastPage > 1) {
-      range.push(lastPage);
-    }
-
-    return range;
-  };
-
   // Sync local state with props
   useEffect(() => {
     setSearchTerm(filters.search);
     setCategoryFilter(filters.category);
+    setRoomFilter(filters.room || 'all');
     setStatusFilter(filters.status);
     setMinPriceFilter(filters.minPrice);
     setMaxPriceFilter(filters.maxPrice);
@@ -385,21 +359,40 @@ export default function Inventory({
                           <div className="grid gap-2">
                             <Label htmlFor="category">Category</Label>
                             <Select
-                              value={data.category_id?.toString() || ''}
+                              value={data.category_id === 0 ? '' : String(data.category_id)}
                               onValueChange={(value) => setData('category_id', parseInt(value))}
                             >
-                              <SelectTrigger id="category">
+                              <SelectTrigger id="category" className='cursor-pointer'>
                                 <SelectValue placeholder="Select category" />
                               </SelectTrigger>
                               <SelectContent>
                                 {categories.map(category => (
-                                  <SelectItem key={category.id} value={String(category.id)}>
+                                  <SelectItem key={category.id} value={String(category.id)} className='cursor-pointer hover:bg-sidebar-accent border-b-2'>
                                     {category.name}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
                             {errors.category_id && <p className="text-sm text-red-500">{errors.category_id}</p>}
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="room">Room</Label>
+                            <Select
+                              value={data.room_id === 0 ? '' : String(data.room_id)}
+                              onValueChange={(value) => setData('room_id', parseInt(value))}
+                            >
+                              <SelectTrigger id="room" className='cursor-pointer'>
+                                <SelectValue placeholder="Select room" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {rooms.map(room => (
+                                  <SelectItem key={room.id} value={String(room.id)} className='cursor-pointer hover:bg-sidebar-accent border-b-2'>
+                                    {room.display_name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {errors.room_id && <p className="text-sm text-red-500">{errors.room_id}</p>}
                           </div>
                           <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
@@ -488,14 +481,15 @@ export default function Inventory({
                     <TooltipTrigger asChild>
                       <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
                         <PopoverTrigger asChild>
-                          <Button variant="outline" className="relative">
+                          <Button variant="outline" className="relative hover:cursor-pointer">
                             <Filter className="h-4 w-4 mr-2" />
                             Filter
-                            {((categoryFilter && categoryFilter !== 'all') || (statusFilter && statusFilter !== 'all') || minPriceFilter || maxPriceFilter) && (
+                            {((categoryFilter && categoryFilter !== 'all') || (roomFilter && roomFilter !== 'all') || (statusFilter && statusFilter !== 'all') || minPriceFilter || maxPriceFilter) && (
                               <Badge className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-primary h-5 w-5 p-0 flex items-center justify-center">
                                 <span className="text-xs">
                                   {[
                                     (categoryFilter && categoryFilter !== 'all') ? 1 : 0,
+                                    (roomFilter && roomFilter !== 'all') ? 1 : 0,
                                     (statusFilter && statusFilter !== 'all') ? 1 : 0,
                                     minPriceFilter || maxPriceFilter ? 1 : 0
                                   ].reduce((a, b) => a + b, 0)}
@@ -535,6 +529,26 @@ export default function Inventory({
                                   {categories.map((category) => (
                                     <SelectItem key={category.id} value={String(category.id)}>
                                       {category.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="room-filter">Room</Label>
+                              <Select
+                                value={roomFilter}
+                                onValueChange={setRoomFilter}
+                              >
+                                <SelectTrigger id="room-filter">
+                                  <SelectValue placeholder="All rooms" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="all">All rooms</SelectItem>
+                                  {rooms.map((room) => (
+                                    <SelectItem key={room.id} value={String(room.id)}>
+                                      {room.display_name}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -625,6 +639,7 @@ export default function Inventory({
                   <TableRow>
                     <TableHead>Item Name</TableHead>
                     <TableHead>Category</TableHead>
+                    <TableHead>Room</TableHead>
                     <TableHead>Quantity</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>Status</TableHead>
@@ -637,6 +652,12 @@ export default function Inventory({
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">{item.name}</TableCell>
                         <TableCell>{item.category.name}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span>{item.room.name}</span>
+                            <span className="text-xs text-muted-foreground">{item.room.location}</span>
+                          </div>
+                        </TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell>{formatToIDR(item.price)}</TableCell>
                         <TableCell>
@@ -795,6 +816,16 @@ export default function Inventory({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
+                    <p className="text-sm font-medium text-muted-foreground">Room</p>
+                    <div className="flex flex-col">
+                      <p className="text-lg">{currentItem.room.name}</p>
+                      <p className="text-sm text-muted-foreground">{currentItem.room.location}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
                     <p className="text-sm font-medium text-muted-foreground">Quantity</p>
                     <p className="text-2xl font-bold text-primary">{currentItem.quantity}</p>
                   </div>
@@ -921,6 +952,25 @@ export default function Inventory({
                     </SelectContent>
                   </Select>
                   {errors.category_id && <p className="text-sm text-red-500">{errors.category_id}</p>}
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="room">Room</Label>
+                  <Select
+                    value={data.room_id?.toString() || ''}
+                    onValueChange={(value) => setData('room_id', parseInt(value))}
+                  >
+                    <SelectTrigger id="room">
+                      <SelectValue placeholder="Select room" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {rooms.map(room => (
+                        <SelectItem key={room.id} value={String(room.id)}>
+                          {room.display_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.room_id && <p className="text-sm text-red-500">{errors.room_id}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">

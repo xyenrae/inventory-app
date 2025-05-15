@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Policies\UserPolicy;
 use App\Models\ActivityLog;
 use App\Policies\ActivityPolicy;
+use App\Models\Room;
+use App\Policies\RoomPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
     protected $policies = [
         Item::class => ItemPolicy::class,
         Category::class => CategoryPolicy::class,
+        Room::class => RoomPolicy::class,
         User::class => UserPolicy::class,
         ActivityLog::class => ActivityPolicy::class,
     ];

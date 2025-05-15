@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/sidebar';
 import { SharedData, type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Package, Layers, Users, Activity, Settings } from 'lucide-react';
+import { LayoutGrid, Package, Layers, Users, Activity, Settings, HouseIcon } from 'lucide-react';
 import { Icon } from '@/components/icon';
 import AppLogo from './app-logo';
 
@@ -30,6 +30,11 @@ const mainNavItems: NavItem[] = [
     title: 'Categories',
     href: '/categories',
     icon: Layers,
+  },
+  {
+    title: 'Rooms',
+    href: '/rooms',
+    icon: HouseIcon,
   },
   {
     title: 'Users',

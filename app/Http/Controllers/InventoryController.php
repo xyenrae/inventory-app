@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\Category;
+use App\Models\Room;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -36,6 +38,7 @@ class InventoryController extends Controller
             'perPage' => 'sometimes|integer|min:1|max:100',
             'search' => 'nullable|string|max:255',
             'category' => 'sometimes|exists:categories,id',
+            'room' => 'sometimes|exists:rooms,id',
             'status' => 'sometimes|string',
             'minPrice' => 'sometimes|numeric|min:0',
             'maxPrice' => 'sometimes|numeric|min:0',
@@ -45,11 +48,12 @@ class InventoryController extends Controller
         $perPage = $validated['perPage'] ?? 10;
         $search = $validated['search'] ?? '';
         $category = $validated['category'] ?? 'all';
+        $room = $validated['room'] ?? 'all';
         $status = $validated['status'] ?? 'all';
         $minPrice = $validated['minPrice'] ?? null;
         $maxPrice = $validated['maxPrice'] ?? null;
 
-        $query = Item::query()->with('category');
+        $query = Item::query()->with(['category', 'room']);
 
         // Filter out items with inactive categories
         $query->whereHas('category', function ($q) {
@@ -62,12 +66,20 @@ class InventoryController extends Controller
                     ->orWhereHas('category', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
                             ->where('status', 'active');
+                    })
+                    ->orWhereHas('room', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('location', 'like', "%{$search}%");
                     });
             });
         }
 
         if ($category !== 'all') {
             $query->where('category_id', $category);
+        }
+
+        if ($room !== 'all') {
+            $query->where('room_id', $room);
         }
 
         if ($status !== 'all') {
@@ -97,10 +109,16 @@ class InventoryController extends Controller
                 'to' => $items->lastItem() ?? 0,
                 'links' => $items->linkCollection()->toArray()
             ],
-            'filters' => $request->only(['search', 'category', 'status', 'minPrice', 'maxPrice', 'perPage']),
+            'filters' => $request->only(['search', 'category', 'room', 'status', 'minPrice', 'maxPrice', 'perPage']),
             'categories' => Category::where('status', 'active')->get()->map(fn($cat) => [
                 'id' => $cat->id,
                 'name' => $cat->name
+            ]),
+            'rooms' => Room::where('status', 'active')->get()->map(fn($room) => [
+                'id' => $room->id,
+                'name' => $room->name,
+                'location' => $room->location,
+                'display_name' => $room->name . ' (' . $room->location . ')'
             ]),
             'can' => [
                 'create' => $request->user()->can('create', Item::class),
@@ -114,8 +132,14 @@ class InventoryController extends Controller
     {
         $this->authorize('create', Item::class);
 
-        return Inertia::render('inventory', [
+        return Inertia::render('inventory/create', [
             'categories' => Category::where('status', 'active')->select('id', 'name')->get(),
+            'rooms' => Room::where('status', 'active')->get()->map(fn($room) => [
+                'id' => $room->id,
+                'name' => $room->name,
+                'location' => $room->location,
+                'display_name' => $room->name . ' (' . $room->location . ')'
+            ]),
         ]);
     }
 
@@ -126,6 +150,7 @@ class InventoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|integer|exists:categories,id',
+            'room_id' => 'required|integer|exists:rooms,id',
             'quantity' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
             'status' => 'required|string|in:In Stock,Low Stock,Out of Stock',
@@ -141,16 +166,22 @@ class InventoryController extends Controller
     {
         $this->authorize('view', $inventory);
 
-        return response()->json($inventory->load('category'));
+        return response()->json($inventory->load(['category', 'room']));
     }
 
     public function edit(Item $inventory)
     {
         $this->authorize('update', $inventory);
 
-        return Inertia::render('inventory', [
-            'item' => $inventory->load('category'),
+        return Inertia::render('inventory/edit', [
+            'item' => $inventory->load(['category', 'room']),
             'categories' => Category::where('status', 'active')->select('id', 'name')->get(),
+            'rooms' => Room::where('status', 'active')->get()->map(fn($room) => [
+                'id' => $room->id,
+                'name' => $room->name,
+                'location' => $room->location,
+                'display_name' => $room->name . ' (' . $room->location . ')'
+            ]),
         ]);
     }
 
@@ -161,6 +192,7 @@ class InventoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|integer|exists:categories,id',
+            'room_id' => 'required|integer|exists:rooms,id',
             'quantity' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
             'status' => 'required|string|in:In Stock,Low Stock,Out of Stock',
@@ -221,6 +253,7 @@ class InventoryController extends Controller
         return $request->validate([
             'search' => 'nullable|string|max:255',
             'category' => 'nullable|string',
+            'room' => 'nullable|string',
             'status' => 'nullable|string',
             'minPrice' => 'nullable|string',
             'maxPrice' => 'nullable|string',
@@ -235,11 +268,12 @@ class InventoryController extends Controller
     {
         $search = $validated['search'] ?? '';
         $category = $validated['category'] ?? 'all';
+        $room = $validated['room'] ?? 'all';
         $status = $validated['status'] ?? 'all';
         $minPrice = $validated['minPrice'] ?? null;
         $maxPrice = $validated['maxPrice'] ?? null;
 
-        $query = Item::query()->with('category');
+        $query = Item::query()->with(['category', 'room']);
 
         // Filter out items with inactive categories
         $query->whereHas('category', function ($q) {
@@ -252,12 +286,20 @@ class InventoryController extends Controller
                     ->orWhereHas('category', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
                             ->where('status', 'active');
+                    })
+                    ->orWhereHas('room', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('location', 'like', "%{$search}%");
                     });
             });
         }
 
         if ($category !== 'all' && is_numeric($category)) {
             $query->where('category_id', $category);
+        }
+
+        if ($room !== 'all' && is_numeric($room)) {
+            $query->where('room_id', $room);
         }
 
         if ($status !== 'all') {
@@ -273,5 +315,24 @@ class InventoryController extends Controller
         }
 
         return $query->orderBy('updated_at', 'desc')->get();
+    }
+
+    /**
+     * Move items to another room
+     */
+    public function moveItems(Request $request)
+    {
+        $this->authorize('update', Item::class);
+
+        $validated = $request->validate([
+            'items' => 'required|array',
+            'items.*' => 'exists:items,id',
+            'room_id' => 'required|exists:rooms,id',
+        ]);
+
+        Item::whereIn('id', $validated['items'])->update(['room_id' => $validated['room_id']]);
+
+        return redirect()->back()
+            ->with('success', count($validated['items']) . ' item(s) moved successfully');
     }
 }

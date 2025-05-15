@@ -4,9 +4,17 @@ export interface Item {
     id: number;
     name: string;
     category_id: number;
+    room_id: number;
     category: {
         id: number;
         name: string;
+    };
+    room: {
+        id: number;
+        name: string;
+        location: string;
+        description?: string;
+        status: string;
     };
     quantity: number;
     price: number;
@@ -32,6 +40,7 @@ export interface Pagination {
 export interface Filters {
     search: string;
     category: string;
+    room?: string;
     status: string;
     minPrice: string;
     maxPrice: string;

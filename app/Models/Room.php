@@ -5,43 +5,33 @@ namespace App\Models;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Item extends Model
+class Room extends Model
 {
     use HasFactory, LogsActivity;
 
     // Define a custom log name
-    const LOG_NAME = 'inventory';
+    const LOG_NAME = 'rooms';
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
-        'category_id',
-        'room_id',
-        'quantity',
-        'price',
-        'status'
+        'location',
+        'description',
+        'status',
     ];
 
     /**
-     * Get the category of this item.
+     * Get the items for the room.
      */
-    public function category(): BelongsTo
+    public function items(): HasMany
     {
-        return $this->belongsTo(Category::class);
-    }
-
-    /**
-     * Get the room that owns the item.
-     */
-    public function room(): BelongsTo
-    {
-        return $this->belongsTo(Room::class);
+        return $this->hasMany(Item::class);
     }
 
     /**
@@ -50,9 +40,9 @@ class Item extends Model
     public function getDescriptionForEvent(string $event)
     {
         return match ($event) {
-            'created' => "Created inventory item '{$this->name}'",
-            'updated' => "Updated inventory item '{$this->name}'",
-            'deleted' => "Deleted inventory item '{$this->name}'",
+            'created' => "Created room '{$this->name}'",
+            'updated' => "Updated room '{$this->name}'",
+            'deleted' => "Deleted room '{$this->name}'",
             default => parent::getDescriptionForEvent($event),
         };
     }
@@ -64,9 +54,7 @@ class Item extends Model
     {
         $properties = $this->defaultLogProperties($event);
 
-        if ($this->category) {
-            $properties['category_name'] = $this->category->name;
-        }
+        $properties['location'] = $this->location;
 
         return $properties;
     }
