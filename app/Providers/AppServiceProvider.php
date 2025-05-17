@@ -12,6 +12,8 @@ use App\Models\ActivityLog;
 use App\Policies\ActivityPolicy;
 use App\Models\Room;
 use App\Policies\RoomPolicy;
+use App\Models\Transaction;
+use App\Policies\TransactionPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
         Category::class => CategoryPolicy::class,
         Room::class => RoomPolicy::class,
         User::class => UserPolicy::class,
+        Transaction::class => TransactionPolicy::class,
         ActivityLog::class => ActivityPolicy::class,
     ];
 

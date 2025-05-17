@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -45,9 +46,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inventory/export/excel', [InventoryController::class, 'exportExcel'])->name('inventory.export.excel');
     Route::get('/inventory/export/pdf', [InventoryController::class, 'exportPdf'])->name('inventory.export.pdf');
 
+    Route::post('/transactions/stock-in', [TransactionController::class, 'stockIn'])->name('transactions.stockIn');
+    Route::post('/transactions/stock-out', [TransactionController::class, 'stockOut'])->name('transactions.stockOut');
+    Route::post('/transactions/transfer', [TransactionController::class, 'transfer'])->name('transactions.transfer');
+
+
     // Resourceful routes
     Route::resource('inventory', InventoryController::class);
     Route::resource('categories', CategoryController::class);
+    Route::resource('transactions', TransactionController::class);
     Route::resource('rooms', RoomController::class);
     Route::resource('users', UserController::class);
     Route::resource('activitylogs', ActivityLogController::class);

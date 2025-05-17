@@ -20,6 +20,12 @@ class UserSeeder extends Seeder
     protected function createPermissions(): void
     {
         $permissions = [
+            // Transactions
+            'view transactions',
+            'create transactions',
+            'edit transactions',
+            'delete transactions',
+
             // Items
             'view items',
             'create items',

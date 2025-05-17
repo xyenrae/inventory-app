@@ -11,8 +11,7 @@ import {
 } from '@/components/ui/sidebar';
 import { SharedData, type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Package, Layers, Users, Activity, Settings, HouseIcon } from 'lucide-react';
-import { Icon } from '@/components/icon';
+import { LayoutGrid, Package, Layers, Users, Activity, ArrowUpDown, HouseIcon } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -20,6 +19,11 @@ const mainNavItems: NavItem[] = [
     title: 'Dashboard',
     href: '/dashboard',
     icon: LayoutGrid,
+  },
+  {
+    title: 'Transactions',
+    href: '/transactions',
+    icon: ArrowUpDown,
   },
   {
     title: 'Inventory',
