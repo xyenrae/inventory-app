@@ -35,7 +35,7 @@ class TransactionController extends Controller
         $validated = $request->validate([
             'perPage' => 'sometimes|integer|min:1|max:100',
             'search' => 'nullable|string|max:255',
-            'type' => 'sometimes|string|in:in,out, transfer,all',
+            'type' => 'sometimes|string|in:in,out,transfer,all',
             'item' => 'sometimes|exists:items,id',
             'fromRoom' => 'sometimes|exists:rooms,id',
             'toRoom' => 'sometimes|exists:rooms,id',
@@ -62,9 +62,14 @@ class TransactionController extends Controller
             });
         }
 
-
         if ($type !== 'all') {
-            $query->where('type', $type);
+            if ($type === 'transfer') {
+                $query->where('type', 'transfer')
+                    ->whereNotNull('from_room_id')
+                    ->whereNotNull('to_room_id');
+            } else {
+                $query->where('type', $type);
+            }
         }
 
         if ($item !== 'all') {
@@ -132,7 +137,16 @@ class TransactionController extends Controller
                 'to' => $transactions->lastItem() ?? 0,
                 'links' => $transactions->linkCollection()->toArray()
             ],
-            'filters' => $request->only(['search', 'type', 'item', 'fromRoom', 'toRoom', 'dateFrom', 'dateTo', 'perPage']),
+            'filters' => [
+                'search' => $search,
+                'type' => $type,
+                'item' => $item,
+                'fromRoom' => $fromRoom,
+                'toRoom' => $toRoom,
+                'dateFrom' => $dateFrom,
+                'dateTo' => $dateTo,
+                'perPage' => $perPage,
+            ],
             'items' => Item::with(['category', 'room'])
                 ->whereHas('category', function ($q) {
                     $q->where('status', 'active');
@@ -578,7 +592,7 @@ class TransactionController extends Controller
     {
         return $request->validate([
             'search' => 'nullable|string|max:255',
-            'type' => 'sometimes|string|in:in,out,all',
+            'type' => 'sometimes|string|in:in,out,transfer,all',
             'item' => 'sometimes|exists:items,id',
             'fromRoom' => 'sometimes|exists:rooms,id',
             'toRoom' => 'sometimes|exists:rooms,id',

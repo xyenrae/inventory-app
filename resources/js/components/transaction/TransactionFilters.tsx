@@ -38,7 +38,8 @@ interface TransactionFiltersProps {
     selectedToRoom: number | string;
     dateFrom: Date | null;
     dateTo: Date | null;
-    isLoading: boolean;
+    isLoadingFilters: boolean;
+    isLoadingResetFilters: boolean;
     setSearch: (value: string) => void;
     setTransactionType: (value: string) => void;
     setSelectedItem: (value: number | string) => void;
@@ -61,7 +62,8 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
     selectedToRoom,
     dateFrom,
     dateTo,
-    isLoading,
+    isLoadingFilters,
+    isLoadingResetFilters,
     setSearch,
     setTransactionType,
     setSelectedItem,
@@ -210,8 +212,8 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                 </div>
                 <div className="flex items-center justify-between mt-6">
                     <div className="flex gap-2">
-                        <Button onClick={applyFilters} disabled={isLoading}>
-                            {isLoading ? (
+                        <Button onClick={applyFilters} disabled={isLoadingFilters}>
+                            {isLoadingFilters ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Filtering...
@@ -223,8 +225,17 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                                 </>
                             )}
                         </Button>
-                        <Button variant="outline" onClick={resetFilters} disabled={isLoading}>
-                            Reset Filters
+                        <Button variant="outline" onClick={resetFilters} disabled={isLoadingResetFilters}>
+                            {isLoadingResetFilters ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Reset Filters...
+                                </>
+                            ) : (
+                                <>
+                                    Reset Filters
+                                </>
+                            )}
                         </Button>
                     </div>
                 </div>

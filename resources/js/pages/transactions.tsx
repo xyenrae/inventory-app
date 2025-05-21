@@ -44,7 +44,10 @@ export default function Transactions() {
     const [dateFrom, setDateFrom] = useState<Date | null>(filters.dateFrom ? new Date(filters.dateFrom) : null);
     const [dateTo, setDateTo] = useState<Date | null>(filters.dateTo ? new Date(filters.dateTo) : null);
     const [perPage, setPerPage] = useState<number>(filters.perPage || 10);
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoadingFilters, setIsLoadingFilters] = useState<boolean>(false);
+    const [isLoadingResetFilters, setIsLoadingResetFilters] = useState<boolean>(false);
 
     // State for transaction forms
     const [openStockInDialog, setOpenStockInDialog] = useState<boolean>(false);
@@ -55,30 +58,30 @@ export default function Transactions() {
 
     // Apply filters
     const applyFilters = () => {
-        setIsLoading(true);
+        setIsLoadingFilters(true);
 
-        router.get(
-            route('transactions.index'),
-            {
-                search,
-                type: transactionType,
-                item: selectedItem,
-                fromRoom: selectedFromRoom,
-                toRoom: selectedToRoom,
-                dateFrom: dateFrom ? format(dateFrom, 'yyyy-MM-dd') : '',
-                dateTo: dateTo ? format(dateTo, 'yyyy-MM-dd') : '',
-                perPage,
-                page: 1
-            },
-            {
-                preserveState: true,
-                onFinish: () => setIsLoading(false)
-            }
-        );
+        const params = {
+            search,
+            type: transactionType !== 'all' ? transactionType : undefined,
+            item: selectedItem !== 'all' ? selectedItem : undefined,
+            fromRoom: selectedFromRoom !== 'all' ? selectedFromRoom : undefined,
+            toRoom: selectedToRoom !== 'all' ? selectedToRoom : undefined,
+            dateFrom: dateFrom ? format(dateFrom, 'yyyy-MM-dd') : undefined,
+            dateTo: dateTo ? format(dateTo, 'yyyy-MM-dd') : undefined,
+            perPage: perPage.toString(),
+        };
+
+        router.get(route('transactions.index'), params, {
+            preserveState: true,
+            replace: true,
+            onFinish: () => setIsLoadingFilters(false),
+        });
     };
 
     // Reset filters
     const resetFilters = () => {
+        setIsLoadingResetFilters(true);
+
         setSearch('');
         setTransactionType('all');
         setSelectedItem('all');
@@ -88,24 +91,14 @@ export default function Transactions() {
         setDateTo(null);
         setPerPage(10);
 
-        // Apply reset filters
-        router.get(
-            route('transactions.index'),
-            {
-                search: '',
-                type: 'all',
-                item: 'all',
-                fromRoom: 'all',
-                toRoom: 'all',
-                dateFrom: '',
-                dateTo: '',
-                perPage: 10,
-                page: 1
-            },
-            {
-                preserveState: true
-            }
-        );
+        router.get(route('transactions.index'), {
+            perPage: 10,
+            page: 1
+        }, {
+            preserveState: true,
+            replace: true,
+            onFinish: () => setIsLoadingResetFilters(false),
+        });
     };
 
     // View transaction details
@@ -225,7 +218,8 @@ export default function Transactions() {
                     selectedToRoom={selectedToRoom}
                     dateFrom={dateFrom}
                     dateTo={dateTo}
-                    isLoading={isLoading}
+                    isLoadingFilters={isLoadingFilters}
+                    isLoadingResetFilters={isLoadingResetFilters}
                     setSearch={setSearch}
                     setTransactionType={setTransactionType}
                     setSelectedItem={setSelectedItem}
