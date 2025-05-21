@@ -28,6 +28,7 @@ import { Calendar, Filter, Loader2 } from 'lucide-react';
 import { CustomDatePicker } from '@/components/custom-date-picker';
 import { format } from 'date-fns';
 import { Label } from '../ui/label';
+import { SearchableItemSelect } from './SearchableItemSelect';
 
 interface TransactionFiltersProps {
     filters: Filters;
@@ -85,16 +86,13 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
             <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="search">Search</Label>
-                        <div className="flex space-x-2">
-                            <Input
-                                id="search"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Search an items"
-                                className="flex-1"
-                            />
-                        </div>
+                        <Label htmlFor="item-filter">Search</Label>
+
+                        <SearchableItemSelect
+                            items={items}
+                            selectedValue={selectedItem}
+                            onValueChange={setSelectedItem}
+                        />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="transaction-type">Transaction Type</Label>
@@ -113,25 +111,7 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="item-filter">Item</Label>
-                        <Select
-                            value={selectedItem.toString()}
-                            onValueChange={setSelectedItem}
-                        >
-                            <SelectTrigger id="item-filter">
-                                <SelectValue placeholder="Select item" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Items</SelectItem>
-                                {items.map((item) => (
-                                    <SelectItem key={item.id} value={item.id.toString()}>
-                                        {item.name} ({item.category})
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+
                     <div className="space-y-2">
                         <Label htmlFor="from-room-filter">From Room</Label>
                         <Select
@@ -170,43 +150,26 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="space-y-2 overflow-hidden">
+
+                    <div className="space-y-2">
                         <Label htmlFor="date-range">Date Range</Label>
-                        <div className="grid grid-cols-2 gap-2">
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        className="w-full justify-start text-left font-normal h-10"
-                                    >
-                                        <Calendar className="mr-2 h-4 w-4" />
-                                        {dateFrom ? format(dateFrom, 'MMM d, yyyy') : 'From'}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <CustomDatePicker
-                                        date={dateFrom}
-                                        setDate={setDateFrom}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        className="w-full justify-start text-left font-normal h-10"
-                                    >
-                                        <Calendar className="mr-2 h-4 w-4" />
-                                        {dateTo ? format(dateTo, 'MMM d, yyyy') : 'To'}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <CustomDatePicker
-                                        date={dateTo}
-                                        setDate={setDateTo}
-                                    />
-                                </PopoverContent>
-                            </Popover>
+                        <div className="flex items-center gap-2 w-full">
+                            <span className="text-muted-foreground text-sm">from</span>
+                            <div className="relative flex-1">
+                                <CustomDatePicker
+                                    date={dateFrom}
+                                    setDate={setDateFrom}
+                                    className="pl-10 h-10 w-full border rounded-md"
+                                />
+                            </div>
+                            <span className="text-muted-foreground text-sm">to</span>
+                            <div className="relative flex-1">
+                                <CustomDatePicker
+                                    date={dateTo}
+                                    setDate={setDateTo}
+                                    className="pl-10 h-10 w-full border rounded-md"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
