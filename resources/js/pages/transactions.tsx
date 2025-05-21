@@ -62,9 +62,12 @@ import { Transaction, Room, Item, Filters, Pagination, FormData } from '@/types/
 import { StockOutDialog } from '@/components/transaction/StockOutDialog';
 import { StockInDialog } from '@/components/transaction/StockInDialog';
 import { TransferDialog } from '@/components/transaction/TransferDialog';
+import { TransactionFilters } from '@/components/transaction/TransactionFilters';
+import { TransactionsTable } from '@/components/transaction/TransactionTable';
+import { TransactionDetails } from '@/components/transaction/TransactionDetails';
 
 interface PageProps {
-    transactions: Transaction;
+    transactions: Transaction[];
     pagination: Pagination;
     filters: Filters;
     items: Item[];
@@ -97,20 +100,6 @@ export default function Transactions() {
     const [openTransferDialog, setOpenTransferDialog] = useState<boolean>(false);
     const [openDetailsSheet, setOpenDetailsSheet] = useState<boolean>(false);
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
-
-    // Default form data
-    const defaultFormData: FormData = {
-        item_id: null,
-        type: 'in',
-        quantity: '',
-        from_room_id: null,
-        to_room_id: null,
-        reference_number: '',
-        notes: '',
-        transaction_date: new Date(),
-        max_quantity: undefined,
-        available_rooms: [],
-    };
 
     // Apply filters
     const applyFilters = () => {
@@ -304,445 +293,49 @@ export default function Transactions() {
                 </div>
 
                 {/* Filters */}
-                <Card className="mb-6">
-                    <CardHeader>
-                        <CardTitle>Filters</CardTitle>
-                        <CardDescription>Filter and search transactions</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="search">Search</Label>
-                                <div className="flex space-x-2">
-                                    <Input
-                                        id="search"
-                                        value={search}
-                                        onChange={(e) => setSearch(e.target.value)}
-                                        placeholder="Search by reference, item, or notes"
-                                        className="flex-1"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="transaction-type">Transaction Type</Label>
-                                <Select
-                                    value={transactionType}
-                                    onValueChange={setTransactionType}
-                                >
-                                    <SelectTrigger id="transaction-type">
-                                        <SelectValue placeholder="Select transaction type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Types</SelectItem>
-                                        <SelectItem value="in">Stock In</SelectItem>
-                                        <SelectItem value="out">Stock Out</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="item-filter">Item</Label>
-                                <Select
-                                    value={selectedItem.toString()}
-                                    onValueChange={setSelectedItem}
-                                >
-                                    <SelectTrigger id="item-filter">
-                                        <SelectValue placeholder="Select item" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Items</SelectItem>
-                                        {items.map((item) => (
-                                            <SelectItem key={item.id} value={item.id.toString()}>
-                                                {item.name} ({item.category})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="from-room-filter">From Room</Label>
-                                <Select
-                                    value={selectedFromRoom.toString()}
-                                    onValueChange={setSelectedFromRoom}
-                                >
-                                    <SelectTrigger id="from-room-filter">
-                                        <SelectValue placeholder="Select source room" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Rooms</SelectItem>
-                                        {rooms.map((room) => (
-                                            <SelectItem key={room.id} value={room.id.toString()}>
-                                                {room.display_name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="to-room-filter">To Room</Label>
-                                <Select
-                                    value={selectedToRoom.toString()}
-                                    onValueChange={setSelectedToRoom}
-                                >
-                                    <SelectTrigger id="to-room-filter">
-                                        <SelectValue placeholder="Select destination room" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Rooms</SelectItem>
-                                        {rooms.map((room) => (
-                                            <SelectItem key={room.id} value={room.id.toString()}>
-                                                {room.display_name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="date-range">Date Range</Label>
-                                <div className="flex gap-2">
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className="w-full justify-start text-left font-normal h-10"
-                                            >
-                                                <Calendar className="mr-2 h-4 w-4" />
-                                                {dateFrom ? format(dateFrom, 'MMM d, yyyy') : 'From'}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0">
-                                            <CustomDatePicker
-                                                date={dateFrom}
-                                                setDate={setDateFrom}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className="w-full justify-start text-left font-normal h-10"
-                                            >
-                                                <Calendar className="mr-2 h-4 w-4" />
-                                                {dateTo ? format(dateTo, 'MMM d, yyyy') : 'To'}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0">
-                                            <CustomDatePicker
-                                                date={dateTo}
-                                                setDate={setDateTo}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between mt-6">
-                            <div className="flex gap-2">
-                                <Button onClick={applyFilters} disabled={isLoading}>
-                                    {isLoading ? (
-                                        <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Filtering...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Filter className="mr-2 h-4 w-4" />
-                                            Apply Filters
-                                        </>
-                                    )}
-                                </Button>
-                                <Button variant="outline" onClick={resetFilters} disabled={isLoading}>
-                                    Reset Filters
-                                </Button>
-                            </div>
-
-                            <div className="flex gap-2">
-                                <Button variant="outline" onClick={exportToExcel} className="gap-2">
-                                    <FileDown className="h-4 w-4" />
-                                    Export Excel
-                                </Button>
-                                <Button variant="outline" onClick={exportToPdf} className="gap-2">
-                                    <FileDown className="h-4 w-4" />
-                                    Export PDF
-                                </Button>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                <TransactionFilters
+                    filters={filters}
+                    search={search}
+                    transactionType={transactionType}
+                    selectedItem={selectedItem}
+                    selectedFromRoom={selectedFromRoom}
+                    selectedToRoom={selectedToRoom}
+                    dateFrom={dateFrom}
+                    dateTo={dateTo}
+                    isLoading={isLoading}
+                    setSearch={setSearch}
+                    setTransactionType={setTransactionType}
+                    setSelectedItem={setSelectedItem}
+                    setSelectedFromRoom={setSelectedFromRoom}
+                    setSelectedToRoom={setSelectedToRoom}
+                    setDateFrom={setDateFrom}
+                    setDateTo={setDateTo}
+                    applyFilters={applyFilters}
+                    resetFilters={resetFilters}
+                    items={items}
+                    rooms={rooms}
+                />
 
                 {/* Transactions Table */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Transactions</CardTitle>
-                        <CardDescription>
-                            {pagination.total} transaction{pagination.total !== 1 ? 's' : ''} found
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead>Item</TableHead>
-                                    <TableHead>Quantity</TableHead>
-                                    <TableHead>Source</TableHead>
-                                    <TableHead>Destination</TableHead>
-                                    <TableHead>Reference</TableHead>
-                                    <TableHead>User</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {transactions.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={9} className="text-center py-8">
-                                            No transactions found
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    transactions.map((transaction) => (
-                                        <TableRow key={transaction.id}>
-                                            <TableCell>{formatDate(transaction.transaction_date)}</TableCell>
-                                            <TableCell>
-                                                {transaction.type === 'in' ? (
-                                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                                        <ArrowDown className="mr-1 h-3 w-3" />
-                                                        Stock In
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                                                        <ArrowUp className="mr-1 h-3 w-3" />
-                                                        Stock Out
-                                                    </Badge>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="font-medium">{transaction.item.name}</div>
-                                                <div className="text-xs text-muted-foreground">
-                                                    {/* {transaction.item.category?.name || 'No Category'} */}
-                                                    {transaction.item.category?.name || 'No Category'}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>{transaction.quantity}</TableCell>
-                                            <TableCell>
-                                                {transaction.fromRoom ? (
-                                                    <div>
-                                                        <div className="font-medium">{transaction.fromRoom.name}</div>
-                                                        <div className="text-xs text-muted-foreground">{transaction.fromRoom.location}</div>
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-muted-foreground">-</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                {transaction.toRoom ? (
-                                                    <div>
-                                                        <div className="font-medium">{transaction.toRoom.name}</div>
-                                                        <div className="text-xs text-muted-foreground">{transaction.toRoom.location}</div>
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-muted-foreground">-</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                {transaction.reference_number || <span className="text-muted-foreground">-</span>}
-                                            </TableCell>
-                                            <TableCell>{transaction.user.name}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => viewTransactionDetails(transaction)}
-                                                >
-                                                    <Search className="h-4 w-4" />
-                                                    <span className="sr-only">View details</span>
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                    <CardFooter className="flex justify-between">
-                        <div className="flex items-center gap-2">
-                            <Label htmlFor="per-page">Show</Label>
-                            <Select
-                                value={perPage.toString()}
-                                onValueChange={(value) => {
-                                    setPerPage(Number(value));
-                                    // Apply the new per page value
-                                    router.get(
-                                        route('transactions.index'),
-                                        {
-                                            search,
-                                            type: transactionType,
-                                            item: selectedItem,
-                                            fromRoom: selectedFromRoom,
-                                            toRoom: selectedToRoom,
-                                            dateFrom: dateFrom ? format(dateFrom, 'yyyy-MM-dd') : '',
-                                            dateTo: dateTo ? format(dateTo, 'yyyy-MM-dd') : '',
-                                            perPage: value,
-                                            page: 1 // Reset to first page when changing per page
-                                        },
-                                        { preserveState: true }
-                                    );
-                                }}
-                            >
-                                <SelectTrigger id="per-page" className="w-[70px]">
-                                    <SelectValue placeholder="10" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="10">10</SelectItem>
-                                    <SelectItem value="25">25</SelectItem>
-                                    <SelectItem value="50">50</SelectItem>
-                                    <SelectItem value="100">100</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <span className="text-sm text-muted-foreground">
-                                Showing {pagination.from}-{pagination.to} of {pagination.total}
-                            </span>
-                        </div>
+                <TransactionsTable
+                    transactions={transactions}
+                    pagination={pagination}
+                    filters={filters}
+                    can={can}
+                    perPage={perPage}
+                    isLoading={isLoading}
+                    viewTransactionDetails={viewTransactionDetails}
+                    formatDate={formatDate}
+                    goToPage={goToPage}
+                    setPerPage={setPerPage}
+                />
 
-                        <PaginationFooter
-                            pagination={pagination}
-                            perPage={perPage}
-                            perPageOptions={[10, 25, 50, 100]}
-                            filters={filters}
-                            isLoading={isLoading}
-                            goToPage={goToPage}
-                            setPerPage={setPerPage}
-                        />
-                    </CardFooter>
-                </Card>
-
-                {/* Transaction Details Sheet */}
-                <Sheet open={openDetailsSheet} onOpenChange={setOpenDetailsSheet}>
-                    <SheetContent className="sm:max-w-[600px]">
-                        <SheetHeader>
-                            <SheetTitle>Transaction Details</SheetTitle>
-                            <SheetDescription>
-                                View detailed information about this transaction
-                            </SheetDescription>
-                        </SheetHeader>
-
-                        {selectedTransaction && (
-                            <div className="space-y-6 py-6">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <h3 className="text-sm font-medium text-muted-foreground">Transaction Type</h3>
-                                        <p className="mt-1">
-                                            {selectedTransaction.type === 'in' ? (
-                                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                                    <ArrowDown className="mr-1 h-3 w-3" />
-                                                    Stock In
-                                                </Badge>
-                                            ) : (
-                                                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                                                    <ArrowUp className="mr-1 h-3 w-3" />
-                                                    Stock Out
-                                                </Badge>
-                                            )}
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <h3 className="text-sm font-medium text-muted-foreground">Transaction Date</h3>
-                                        <p className="mt-1 font-medium">{formatDate(selectedTransaction.transaction_date)}</p>
-                                    </div>
-
-                                    <div>
-                                        <h3 className="text-sm font-medium text-muted-foreground">Reference Number</h3>
-                                        <p className="mt-1">{selectedTransaction.reference_number || '-'}</p>
-                                    </div>
-
-                                    <div>
-                                        <h3 className="text-sm font-medium text-muted-foreground">Created By</h3>
-                                        <p className="mt-1">{selectedTransaction.user.name}</p>
-                                    </div>
-                                </div>
-
-                                <Separator />
-
-                                <div>
-                                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Item Details</h3>
-                                    <div className="bg-muted rounded-md p-4">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <h4 className="text-sm font-medium">Item Name</h4>
-                                                <p>{selectedTransaction.item.name}</p>
-                                            </div>
-
-                                            <div>
-                                                <h4 className="text-sm font-medium">Category</h4>
-                                                <p>{selectedTransaction.item.category?.name || 'No Category'}</p>
-                                            </div>
-
-                                            <div>
-                                                <h4 className="text-sm font-medium">Quantity</h4>
-                                                <p>{selectedTransaction.quantity}</p>
-                                            </div>
-
-                                            <div>
-                                                <h4 className="text-sm font-medium">Current Stock</h4>
-                                                <p>{selectedTransaction.item.quantity}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <Separator />
-
-                                <div>
-                                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Location</h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <h4 className="text-sm font-medium">From Room</h4>
-                                            <p>
-                                                {selectedTransaction.fromRoom
-                                                    ? `${selectedTransaction.fromRoom.name} (${selectedTransaction.fromRoom.location})`
-                                                    : '-'}
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <h4 className="text-sm font-medium">To Room</h4>
-                                            <p>
-                                                {selectedTransaction.toRoom
-                                                    ? `${selectedTransaction.toRoom.name} (${selectedTransaction.toRoom.location})`
-                                                    : '-'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {selectedTransaction.notes && (
-                                    <>
-                                        <Separator />
-
-                                        <div>
-                                            <h3 className="text-sm font-medium text-muted-foreground mb-2">Notes</h3>
-                                            <p className="text-sm whitespace-pre-wrap">{selectedTransaction.notes}</p>
-                                        </div>
-                                    </>
-                                )}
-
-                                <SheetFooter>
-                                    <Button variant="outline" onClick={() => setOpenDetailsSheet(false)}>
-                                        Close
-                                    </Button>
-                                </SheetFooter>
-                            </div>
-                        )}
-                    </SheetContent>
-                </Sheet>
+                <TransactionDetails
+                    open={openDetailsSheet}
+                    onOpenChange={setOpenDetailsSheet}
+                    transaction={selectedTransaction}
+                    formatDate={formatDate}
+                />
             </div>
         </AppLayout>
     );
