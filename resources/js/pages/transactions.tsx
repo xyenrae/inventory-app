@@ -4,11 +4,9 @@ import {
     Calendar,
     Search,
     Filter,
-    ArrowDownUp,
     ArrowDown,
     ArrowUp,
     FileDown,
-    Plus,
     ArrowLeftRight,
     Loader2
 } from 'lucide-react';
@@ -49,33 +47,21 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import {
     Sheet,
     SheetContent,
     SheetDescription,
     SheetFooter,
     SheetHeader,
     SheetTitle,
-    SheetTrigger,
 } from '@/components/ui/sheet';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { toast } from "sonner";
 import { CustomDatePicker } from '@/components/custom-date-picker';
 import PaginationFooter from '@/components/pagination-footer';
 import { BreadcrumbItem } from '@/types';
 import { Transaction, Room, Item, Filters, Pagination, FormData } from '@/types/transaction';
 import { StockOutDialog } from '@/components/transaction/StockOutDialog';
 import { StockInDialog } from '@/components/transaction/StockInDialog';
+import { TransferDialog } from '@/components/transaction/TransferDialog';
 
 interface PageProps {
     transactions: Transaction;
@@ -93,14 +79,6 @@ interface PageProps {
 
 export default function Transactions() {
     const { transactions, pagination, filters, items, rooms, can } = usePage<PageProps>().props;
-    const [selectedItemGroup, setSelectedItemGroup] = useState<{
-        name: string;
-        variants: Array<{
-            id: number;
-            current_room: { id: number; display_name: string };
-            current_quantity: number;
-        }>;
-    } | null>(null);
 
     // State for filters
     const [search, setSearch] = useState<string>(filters.search || '');
@@ -134,11 +112,6 @@ export default function Transactions() {
         available_rooms: [],
     };
 
-    // Form data for different transaction types
-    const [stockInForm, setStockInForm] = useState<FormData>({ ...defaultFormData, type: 'in' });
-    const [stockOutForm, setStockOutForm] = useState<FormData>({ ...defaultFormData, type: 'out', available_rooms: [] });
-    const [transferForm, setTransferForm] = useState<FormData>({ ...defaultFormData, type: 'out' });
-
     // Apply filters
     const applyFilters = () => {
         setIsLoading(true);
@@ -154,7 +127,7 @@ export default function Transactions() {
                 dateFrom: dateFrom ? format(dateFrom, 'yyyy-MM-dd') : '',
                 dateTo: dateTo ? format(dateTo, 'yyyy-MM-dd') : '',
                 perPage,
-                page: 1 // Reset to first page when filters change
+                page: 1
             },
             {
                 preserveState: true,
@@ -223,144 +196,6 @@ export default function Transactions() {
         window.location.href = `${route('transactions.exportPdf')}?${params.toString()}`;
     };
 
-    // Submit handlers
-    const handleStockInSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!stockInForm.item_id || !stockInForm.to_room_id || !stockInForm.quantity || !stockInForm.transaction_date) {
-            toast.error("Please fill in all required fields");
-
-            return;
-        }
-
-        setIsLoading(true);
-
-        router.post(route('transactions.stockIn'), {
-            item_id: stockInForm.item_id,
-            quantity: Number(stockInForm.quantity),
-            to_room_id: stockInForm.to_room_id,
-            reference_number: stockInForm.reference_number,
-            notes: stockInForm.notes,
-            transaction_date: stockInForm.transaction_date ? format(stockInForm.transaction_date, 'yyyy-MM-dd') : '',
-        }, {
-            onSuccess: () => {
-                setOpenStockInDialog(false);
-                setStockInForm({ ...defaultFormData, type: 'in' });
-                toast.success('Stock-in transaction recorded successfully');
-
-            },
-            onError: (errors) => {
-                console.error(errors);
-                toast.error("Failed to record stock-in transaction");
-
-            },
-            onFinish: () => setIsLoading(false)
-        });
-    };
-
-    const handleStockOutSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!stockOutForm.item_id || !stockOutForm.from_room_id || !stockOutForm.quantity || !stockOutForm.transaction_date) {
-            toast.error("Please fill in all required fields");
-
-            return;
-        }
-
-        setIsLoading(true);
-
-        router.post(route('transactions.stockOut'), {
-            item_id: stockOutForm.item_id,
-            quantity: Number(stockOutForm.quantity),
-            from_room_id: stockOutForm.from_room_id,
-            reference_number: stockOutForm.reference_number,
-            notes: stockOutForm.notes,
-            transaction_date: stockOutForm.transaction_date ? format(stockOutForm.transaction_date, 'yyyy-MM-dd') : '',
-        }, {
-            onSuccess: () => {
-                setOpenStockOutDialog(false);
-                setStockOutForm({ ...defaultFormData, type: 'out' });
-                toast.success('Stock-out transaction recorded successfully');
-
-            },
-            onError: (errors) => {
-                console.error(errors);
-                toast.error("Failed to record stock-out transaction");
-
-            },
-            onFinish: () => setIsLoading(false)
-        });
-    };
-
-    const handleTransferSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!transferForm.item_id || !transferForm.from_room_id || !transferForm.to_room_id ||
-            !transferForm.quantity || !transferForm.transaction_date ||
-            transferForm.from_room_id === transferForm.to_room_id) {
-            toast.error("Please fill in all required fields. Source and destination rooms must be different.");
-
-            return;
-        }
-
-        setIsLoading(true);
-
-        router.post(route('transactions.transfer'), {
-            item_id: transferForm.item_id,
-            quantity: Number(transferForm.quantity),
-            from_room_id: transferForm.from_room_id,
-            to_room_id: transferForm.to_room_id,
-            reference_number: transferForm.reference_number,
-            notes: transferForm.notes,
-            transaction_date: transferForm.transaction_date ? format(transferForm.transaction_date, 'yyyy-MM-dd') : '',
-        }, {
-            onSuccess: () => {
-                setOpenTransferDialog(false);
-                setTransferForm({ ...defaultFormData, type: 'out' });
-                toast.success('Item transfer processed successfully');
-            },
-            onError: (errors) => {
-                console.error(errors);
-                toast.success('Failed to process transfer');
-            },
-            onFinish: () => setIsLoading(false)
-        });
-    };
-
-    // Handle item selection in forms
-    const handleItemSelection = (itemId: number, formType: 'stockIn' | 'stockOut' | 'transfer') => {
-        const selectedItem = items.find(item => item.id === itemId);
-
-        if (!selectedItem) return;
-
-        if (selectedItem) {
-            if (formType === 'stockIn') {
-                setStockInForm(prev => ({
-                    ...prev,
-                    item_id: itemId
-                }));
-            } else if (formType === 'stockOut') {
-                const availableRooms = selectedItem.current_room
-                    ? [selectedItem.current_room]
-                    : rooms;
-
-                setStockOutForm(prev => ({
-                    ...prev,
-                    item_id: itemId,
-                    from_room_id: null,
-                    max_quantity: selectedItem?.current_quantity || 0,
-                    available_rooms: availableRooms,
-                }));
-            } else if (formType === 'transfer') {
-                setTransferForm(prev => ({
-                    ...prev,
-                    item_id: itemId,
-                    from_room_id: selectedItem.current_room?.id || null
-                }));
-            }
-        }
-    };
-
     // View transaction details
     const viewTransactionDetails = (transaction: Transaction) => {
         setSelectedTransaction(transaction);
@@ -425,7 +260,6 @@ export default function Transactions() {
                                     open={openStockInDialog}
                                     onOpenChange={setOpenStockInDialog}
                                     items={items}
-                                    rooms={rooms}
                                     can={can}
                                 />
                             </div>
@@ -447,146 +281,24 @@ export default function Transactions() {
                                 />
                             </div>
 
-                            <Dialog open={openTransferDialog} onOpenChange={setOpenTransferDialog}>
-                                <DialogTrigger asChild>
-                                    <Button className="gap-2" variant="secondary">
-                                        <ArrowLeftRight className="w-4 h-4" />
-                                        Transfer
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
-                                    <DialogHeader>
-                                        <DialogTitle>Transfer Items</DialogTitle>
-                                        <DialogDescription>
-                                            Move items between rooms
-                                        </DialogDescription>
-                                    </DialogHeader>
+                            <div>
+                                <Button
+                                    onClick={() => setOpenTransferDialog(true)}
+                                    variant="outline"
+                                    className="gap-2"
+                                >
+                                    <ArrowLeftRight className="w-4 h-4" /> Transfer
+                                </Button>
 
-                                    <form onSubmit={handleTransferSubmit} className="space-y-4 py-4">
-                                        <div className="grid grid-cols-1 gap-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="transfer-item">Item</Label>
-                                                <Select
-                                                    value={transferForm.item_id?.toString() || ""}
-                                                    onValueChange={(value) => handleItemSelection(Number(value), 'transfer')}
-                                                >
-                                                    <SelectTrigger id="transfer-item" className="w-full">
-                                                        <SelectValue placeholder="Select an item" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {items.map((item) => (
-                                                            <SelectItem key={item.id} value={item.id.toString()}>
-                                                                {item.name} ({item.category}) -
-                                                                {item.current_quantity !== undefined ? ` Available: ${item.current_quantity}` : ''}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
+                                <TransferDialog
+                                    open={openTransferDialog}
+                                    onOpenChange={setOpenTransferDialog}
+                                    items={items}
+                                    can={can}
+                                    rooms={rooms}
+                                />
+                            </div>
 
-                                            <div className="space-y-2">
-                                                <Label htmlFor="transfer-quantity">Quantity</Label>
-                                                <Input
-                                                    id="transfer-quantity"
-                                                    type="number"
-                                                    min={1}
-                                                    value={transferForm.quantity}
-                                                    onChange={(e) => setTransferForm(prev => ({ ...prev, quantity: e.target.value }))}
-                                                    placeholder="Enter quantity"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="transfer-from-room">From Room</Label>
-                                                <Select
-                                                    value={transferForm.from_room_id?.toString() || ""}
-                                                    onValueChange={(value) => setTransferForm(prev => ({ ...prev, from_room_id: Number(value) }))}
-                                                >
-                                                    <SelectTrigger id="transfer-from-room" className="w-full">
-                                                        <SelectValue placeholder="Select source room" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {rooms.map((room) => (
-                                                            <SelectItem key={room.id} value={room.id.toString()}>
-                                                                {room.display_name}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="transfer-to-room">To Room</Label>
-                                                <Select
-                                                    value={transferForm.to_room_id?.toString() || ""}
-                                                    onValueChange={(value) => setTransferForm(prev => ({ ...prev, to_room_id: Number(value) }))}
-                                                >
-                                                    <SelectTrigger id="transfer-to-room" className="w-full">
-                                                        <SelectValue placeholder="Select destination room" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {rooms.map((room) => (
-                                                            <SelectItem key={room.id} value={room.id.toString()}>
-                                                                {room.display_name}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="transfer-reference">Reference Number</Label>
-                                                <Input
-                                                    id="transfer-reference"
-                                                    value={transferForm.reference_number}
-                                                    onChange={(e) => setTransferForm(prev => ({ ...prev, reference_number: e.target.value }))}
-                                                    placeholder="Optional reference number"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="transfer-date">Transaction Date</Label>
-                                                <CustomDatePicker
-                                                    date={transferForm.transaction_date}
-                                                    setDate={(date) => setTransferForm(prev => ({ ...prev, transaction_date: date }))}
-                                                    className="w-full"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="transfer-notes">Notes</Label>
-                                                <Textarea
-                                                    id="transfer-notes"
-                                                    value={transferForm.notes}
-                                                    onChange={(e) => setTransferForm(prev => ({ ...prev, notes: e.target.value }))}
-                                                    placeholder="Additional notes (optional)"
-                                                    rows={3}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <DialogFooter>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => setOpenTransferDialog(false)}
-                                            >
-                                                Cancel
-                                            </Button>
-                                            <Button type="submit" disabled={isLoading}>
-                                                {isLoading ? (
-                                                    <>
-                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        Processing
-                                                    </>
-                                                ) : (
-                                                    <>Process Transfer</>
-                                                )}
-                                            </Button>
-                                        </DialogFooter>
-                                    </form>
-                                </DialogContent>
-                            </Dialog>
                         </div>
                     )}
                 </div>
