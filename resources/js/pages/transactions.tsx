@@ -75,6 +75,7 @@ import PaginationFooter from '@/components/pagination-footer';
 import { BreadcrumbItem } from '@/types';
 import { Transaction, Room, Item, Filters, Pagination, FormData } from '@/types/transaction';
 import { StockOutDialog } from '@/components/transaction/StockOutDialog';
+import { StockInDialog } from '@/components/transaction/StockInDialog';
 
 interface PageProps {
     transactions: Transaction;
@@ -412,137 +413,31 @@ export default function Transactions() {
 
                     {can.create && (
                         <div className="flex gap-2">
-                            <Dialog open={openStockInDialog} onOpenChange={setOpenStockInDialog}>
-                                <DialogTrigger asChild>
-                                    <Button className="gap-2">
-                                        <ArrowDown className="w-4 h-4" />
-                                        Stock In
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
-                                    <DialogHeader>
-                                        <DialogTitle>Stock In</DialogTitle>
-                                        <DialogDescription>
-                                            Record new items entering inventory
-                                        </DialogDescription>
-                                    </DialogHeader>
-
-                                    <form onSubmit={handleStockInSubmit} className="space-y-4 py-4">
-                                        <div className="grid grid-cols-1 gap-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock-in-item">Item</Label>
-                                                <Select
-                                                    value={stockInForm.item_id?.toString() || ""}
-                                                    onValueChange={(value) => handleItemSelection(Number(value), 'stockIn')}
-                                                >
-                                                    <SelectTrigger id="stock-in-item" className="w-full">
-                                                        <SelectValue placeholder="Select an item" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {items.map((item) => (
-                                                            <SelectItem key={item.id} value={item.id.toString()}>
-                                                                {item.name} ({item.category})
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock-in-quantity">Quantity</Label>
-                                                <Input
-                                                    id="stock-in-quantity"
-                                                    type="number"
-                                                    min={1}
-                                                    value={stockInForm.quantity}
-                                                    onChange={(e) => setStockInForm(prev => ({ ...prev, quantity: e.target.value }))}
-                                                    placeholder="Enter quantity"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock-in-room">Destination Room</Label>
-                                                <Select
-                                                    value={stockInForm.to_room_id?.toString() || ""}
-                                                    onValueChange={(value) => setStockInForm(prev => ({ ...prev, to_room_id: Number(value) }))}
-                                                >
-                                                    <SelectTrigger id="stock-in-room" className="w-full">
-                                                        <SelectValue placeholder="Select destination room" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {rooms.map((room) => (
-                                                            <SelectItem key={room.id} value={room.id.toString()}>
-                                                                {room.display_name}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock-in-reference">Reference Number</Label>
-                                                <Input
-                                                    id="stock-in-reference"
-                                                    value={stockInForm.reference_number}
-                                                    onChange={(e) => setStockInForm(prev => ({ ...prev, reference_number: e.target.value }))}
-                                                    placeholder="Optional reference number"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock-in-date">Transaction Date</Label>
-                                                <CustomDatePicker
-                                                    date={stockInForm.transaction_date}
-                                                    setDate={(date) => setStockInForm(prev => ({ ...prev, transaction_date: date }))}
-                                                    className="w-full"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock-in-notes">Notes</Label>
-                                                <Textarea
-                                                    id="stock-in-notes"
-                                                    value={stockInForm.notes}
-                                                    onChange={(e) => setStockInForm(prev => ({ ...prev, notes: e.target.value }))}
-                                                    placeholder="Additional notes (optional)"
-                                                    rows={3}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <DialogFooter>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => setOpenStockInDialog(false)}
-                                            >
-                                                Cancel
-                                            </Button>
-                                            <Button type="submit" disabled={isLoading}>
-                                                {isLoading ? (
-                                                    <>
-                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        Processing
-                                                    </>
-                                                ) : (
-                                                    <>Record Stock In</>
-                                                )}
-                                            </Button>
-                                        </DialogFooter>
-                                    </form>
-                                </DialogContent>
-                            </Dialog>
+                            <div>
+                                <Button
+                                    onClick={() => setOpenStockInDialog(true)}
+                                    variant="outline"
+                                    className="gap-2"
+                                >
+                                    <ArrowDown className="w-4 h-4" /> Stock In
+                                </Button>
+                                <StockInDialog
+                                    open={openStockInDialog}
+                                    onOpenChange={setOpenStockInDialog}
+                                    items={items}
+                                    rooms={rooms}
+                                    can={can}
+                                />
+                            </div>
 
                             <div>
-                                {can.create && (
-                                    <Button
-                                        onClick={() => setOpenStockOutDialog(true)}
-                                        variant="outline"
-                                        className="gap-2"
-                                    >
-                                        <ArrowUp className="w-4 h-4" /> Stock Out
-                                    </Button>
-                                )}
+                                <Button
+                                    onClick={() => setOpenStockOutDialog(true)}
+                                    variant="outline"
+                                    className="gap-2"
+                                >
+                                    <ArrowUp className="w-4 h-4" /> Stock Out
+                                </Button>
 
                                 <StockOutDialog
                                     open={openStockOutDialog}

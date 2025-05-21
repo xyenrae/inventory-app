@@ -11,7 +11,7 @@ import { router } from '@inertiajs/react';
 import { Label } from '../ui/label';
 import { toast } from 'sonner';
 
-interface StockOutDialogProps {
+interface StockInDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     items: Array<{
@@ -30,15 +30,15 @@ interface StockOutDialogProps {
 }
 
 
-export const StockOutDialog: React.FC<StockOutDialogProps> = ({
+export const StockInDialog: React.FC<StockInDialogProps> = ({
     open,
     onOpenChange,
     items,
 }) => {
     const [isLoading, setIsLoading] = useState(false);
-    const [stockOutForm, setStockOutForm] = useState<FormData>({
+    const [stockInForm, setStockInForm] = useState<FormData>({
         item_id: null,
-        type: 'out',
+        type: 'in',
         quantity: '',
         from_room_id: null,
         to_room_id: null,
@@ -51,7 +51,7 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
 
     const defaultFormData: FormData = {
         item_id: null,
-        type: 'out',
+        type: 'in',
         quantity: '',
         from_room_id: null,
         to_room_id: null,
@@ -63,7 +63,7 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
     };
 
     const resetForm = () => {
-        setStockOutForm({ ...defaultFormData });
+        setStockInForm({ ...defaultFormData });
     };
 
     const handleItemSelection = (itemName: string) => {
@@ -87,7 +87,7 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
             autoSelectedRoom = uniqueRooms[0];
         }
 
-        setStockOutForm(prev => ({
+        setStockInForm(prev => ({
             ...prev,
             item_name: itemName,
             item_id: group.variants[0].id,
@@ -100,28 +100,29 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!stockOutForm.item_id || !stockOutForm.from_room_id || !stockOutForm.quantity || !stockOutForm.transaction_date) {
+        if (!stockInForm.item_id || !stockInForm.from_room_id || !stockInForm.quantity || !stockInForm.transaction_date) {
             toast.error('Please fill in all required fields');
             return;
         }
 
         setIsLoading(true);
-        router.post(route('transactions.stockOut'), {
-            item_id: stockOutForm.item_id,
-            quantity: Number(stockOutForm.quantity),
-            from_room_id: stockOutForm.from_room_id,
-            reference_number: stockOutForm.reference_number,
-            notes: stockOutForm.notes,
-            transaction_date: stockOutForm.transaction_date ? stockOutForm.transaction_date.toISOString().split('T')[0] : '',
+
+        router.post(route('transactions.stockIn'), {
+            item_id: stockInForm.item_id,
+            quantity: Number(stockInForm.quantity),
+            to_room_id: stockInForm.from_room_id,
+            reference_number: stockInForm.reference_number,
+            notes: stockInForm.notes,
+            transaction_date: stockInForm.transaction_date ? stockInForm.transaction_date.toISOString().split('T')[0] : '',
         }, {
             onSuccess: () => {
-                toast.success('Stock-out transaction recorded successfully');
+                toast.success('Stock-in transaction recorded successfully');
                 onOpenChange(false);
                 resetForm();
             },
             onError: (errors) => {
                 console.error(errors);
-                toast.error('Failed to record stock-out transaction');
+                toast.error('Failed to record stock-in transaction');
                 onOpenChange(false);
                 resetForm();
             },
@@ -167,7 +168,7 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
             }}>
             <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Stock Out</DialogTitle>
+                    <DialogTitle>Stock In</DialogTitle>
                     <DialogDescription>Record items leaving inventory</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 py-4">
@@ -175,12 +176,12 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
                     <div className="grid grid-cols-1 gap-4">
                         {/* Item Selection */}
                         <div className="space-y-2">
-                            <Label htmlFor="stock-out-item">Item</Label>
+                            <Label htmlFor="stock-in-item">Item</Label>
                             <Select
-                                value={stockOutForm.item_name || ""}
+                                value={stockInForm.item_name || ""}
                                 onValueChange={(value) => handleItemSelection(value)
                                 }                             >
-                                <SelectTrigger id="stock-out-item" className="w-full">
+                                <SelectTrigger id="stock-in-item" className="w-full">
                                     <SelectValue placeholder="Select an item" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -201,36 +202,34 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
 
                         {/* Source Room */}
                         <div className="space-y-2">
-                            <Label htmlFor="stock-out-room">Source Room</Label>
+                            <Label htmlFor="stock-in-room">Destination Room</Label>
 
-                            {stockOutForm.available_rooms?.length === 1 ? (
+                            {stockInForm.available_rooms?.length === 1 ? (
                                 // Tampilkan sebagai teks jika hanya 1 ruangan
                                 <div className="flex items-center gap-2 p-2 rounded-md border-input border">
-                                    <span className='text-sm ml-1'>{stockOutForm.available_rooms[0].display_name} ({stockOutForm.available_rooms[0].location})</span>
-                                    <span className="text-sm text-muted-foreground">
-                                        | Qty: {stockOutForm.available_rooms[0].current_quantity}
-                                    </span>
+                                    <span className='text-sm ml-1'>{stockInForm.available_rooms[0].display_name}</span>
+
                                 </div>
                             ) : (
                                 <Select
-                                    value={stockOutForm.from_room_id?.toString() || ""}
+                                    value={stockInForm.from_room_id?.toString() || ""}
                                     onValueChange={(value) => {
                                         const roomId = Number(value);
-                                        const selectedRoom = stockOutForm.available_rooms?.find(r => r.id === roomId);
+                                        const selectedRoom = stockInForm.available_rooms?.find(r => r.id === roomId);
 
-                                        setStockOutForm(prev => ({
+                                        setStockInForm(prev => ({
                                             ...prev,
                                             from_room_id: roomId,
                                             max_quantity: selectedRoom?.current_quantity || 0
                                         }));
                                     }}
-                                    disabled={!stockOutForm.item_id}
+                                    disabled={!stockInForm.item_id}
                                 >
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Please choose an item first" />
+                                        <SelectValue placeholder="Pick a destination room" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {stockOutForm.available_rooms?.map(room => (
+                                        {stockInForm.available_rooms?.map(room => (
                                             <SelectItem key={room.id} value={room.id.toString()}>
                                                 {room.display_name}
                                             </SelectItem>
@@ -238,7 +237,7 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
                                     </SelectContent>
                                 </Select>
                             )}
-                            {stockOutForm.item_id && stockOutForm.available_rooms?.length === 0 ? (
+                            {stockInForm.item_id && stockInForm.available_rooms?.length === 0 ? (
                                 <p className="text-xs text-yellow-500 mt-1">
                                     This item is not currently available in any room.                                </p>
                             ) : null}
@@ -246,35 +245,34 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
 
                         {/* Quantity */}
                         <div className="space-y-2">
-                            <Label htmlFor="stock-out-quantity">Quantity</Label>
-                            {stockOutForm.max_quantity !== undefined && stockOutForm.item_id && (
-                                <p className="text-xs text-muted-foreground">Max available: {stockOutForm.max_quantity}</p>
+                            <Label htmlFor="stock-in-quantity">Quantity</Label>
+                            {stockInForm.max_quantity !== undefined && stockInForm.item_id && (
+                                <p className="text-xs text-muted-foreground">Stock available: {stockInForm.max_quantity}</p>
                             )}
                             <Input
-                                id="stock-out-quantity"
+                                id="stock-in-quantity"
                                 type="number"
                                 min={1}
-                                max={stockOutForm.max_quantity ?? undefined}
-                                value={stockOutForm.quantity}
+                                value={stockInForm.quantity}
                                 onChange={(e) => {
                                     const value = parseInt(e.target.value, 10);
-                                    if (!isNaN(value) && value >= 1 && value <= (stockOutForm.max_quantity ?? Infinity)) {
-                                        setStockOutForm(prev => ({ ...prev, quantity: value }));
+                                    if (!isNaN(value) && value >= 1) {
+                                        setStockInForm(prev => ({ ...prev, quantity: value }));
                                     } else if (e.target.value === '') {
-                                        setStockOutForm(prev => ({ ...prev, quantity: '' }));
+                                        setStockInForm(prev => ({ ...prev, quantity: '' }));
                                     }
                                 }}
-                                disabled={!stockOutForm.from_room_id}
-                                placeholder={!stockOutForm.from_room_id ? "Please choose a room first" : "Enter quantity"}
+                                disabled={!stockInForm.from_room_id}
+                                placeholder={!stockInForm.from_room_id ? "Please choose an item and a room first" : "Enter quantity"}
                             />
                         </div>
 
                         {/* Transaction Date */}
                         <div className="space-y-2">
-                            <Label htmlFor="stock-out-date">Transaction Date</Label>
+                            <Label htmlFor="stock-in-date">Transaction Date</Label>
                             <CustomDatePicker
-                                date={stockOutForm.transaction_date}
-                                setDate={(date) => setStockOutForm((prev) => ({ ...prev, transaction_date: date }))}
+                                date={stockInForm.transaction_date}
+                                setDate={(date) => setStockInForm((prev) => ({ ...prev, transaction_date: date }))}
                                 className="w-full"
                             />
                         </div>
@@ -290,7 +288,7 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing
                                 </>
                             ) : (
-                                <>Record Stock Out</>
+                                <>Record Stock In</>
                             )}
                         </Button>
                     </DialogFooter>
