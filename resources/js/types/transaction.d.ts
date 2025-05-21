@@ -1,6 +1,6 @@
 export interface Transaction {
     id: number;
-    type: 'in' | 'out';
+    type: 'in' | 'out' | 'transfer' | 'all';
     quantity: number;
     transaction_date: string;
     created_at: string;
@@ -47,7 +47,7 @@ export interface Room {
 
 export interface Filters {
     search?: string;
-    type?: 'in' | 'out' | 'all';
+    type?: 'in' | 'out' | 'transfer' | 'all';
     item?: number | 'all';
     fromRoom?: number | 'all';
     toRoom?: number | 'all';
@@ -74,7 +74,7 @@ export interface Pagination {
 export interface FormData {
     item_id: number | null;
     item_name?: string;
-    type: 'in' | 'out';
+    type: 'in' | 'out' | 'transfer' | 'all';
     quantity: number | string;
     from_room_id: number | null;
     to_room_id: number | null;

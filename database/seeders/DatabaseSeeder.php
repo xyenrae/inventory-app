@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             RoomSeeder::class,
             ItemSeeder::class,
             ActivityLogSeeder::class,
+            TransactionSeeder::class,
         ]);
     }
 }

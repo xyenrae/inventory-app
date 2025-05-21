@@ -1,4 +1,3 @@
-// ./components/transaction/TransactionsTable.tsx
 import React from 'react';
 import {
     Table,
@@ -18,7 +17,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search, ArrowDown, ArrowUp } from 'lucide-react';
+import { Search, ArrowDown, ArrowUp, ArrowLeftRight } from 'lucide-react';
 import PaginationFooter from '@/components/pagination-footer';
 import { Transaction } from '@/types/transaction';
 import { Label } from '../ui/label';
@@ -92,10 +91,15 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                                                 <ArrowDown className="mr-1 h-3 w-3" />
                                                 Stock In
                                             </Badge>
-                                        ) : (
+                                        ) : transaction.type === 'out' ? (
                                             <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
                                                 <ArrowUp className="mr-1 h-3 w-3" />
                                                 Stock Out
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                                <ArrowLeftRight className="mr-1 h-3 w-3" />
+                                                Transfer
                                             </Badge>
                                         )}
                                     </TableCell>

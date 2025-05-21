@@ -107,6 +107,7 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                                 <SelectItem value="all">All Types</SelectItem>
                                 <SelectItem value="in">Stock In</SelectItem>
                                 <SelectItem value="out">Stock Out</SelectItem>
+                                <SelectItem value="transfer">Transfer</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

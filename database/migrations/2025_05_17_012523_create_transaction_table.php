@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('item_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('type', ['in', 'out']);
+            $table->enum('type', ['in', 'out', 'transfer']);
             $table->integer('quantity');
             $table->foreignId('from_room_id')->nullable()->constrained('rooms')->nullOnDelete();
             $table->foreignId('to_room_id')->nullable()->constrained('rooms')->nullOnDelete();

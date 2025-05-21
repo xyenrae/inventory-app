@@ -35,7 +35,7 @@ class TransactionController extends Controller
         $validated = $request->validate([
             'perPage' => 'sometimes|integer|min:1|max:100',
             'search' => 'nullable|string|max:255',
-            'type' => 'sometimes|string|in:in,out,all',
+            'type' => 'sometimes|string|in:in,out, transfer,all',
             'item' => 'sometimes|exists:items,id',
             'fromRoom' => 'sometimes|exists:rooms,id',
             'toRoom' => 'sometimes|exists:rooms,id',
@@ -88,6 +88,7 @@ class TransactionController extends Controller
         }
 
         $transactions = $query->orderBy('transaction_date', 'desc')
+            ->orderBy('id', 'desc')
             ->paginate($perPage)
             ->withQueryString();
 
