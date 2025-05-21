@@ -94,8 +94,6 @@ class TransactionController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-
-
         return Inertia::render('transactions', [
             'transactions' => $transactions->map(function ($transaction) {
                 return [
@@ -139,15 +137,23 @@ class TransactionController extends Controller
                 'links' => $transactions->linkCollection()->toArray()
             ],
             'filters' => $request->only(['search', 'type', 'item', 'fromRoom', 'toRoom', 'dateFrom', 'dateTo', 'perPage']),
-            'items' => Item::whereHas('category', function ($q) {
-                $q->where('status', 'active');
-            })->get()->map(fn($item) => [
-                'id' => $item->id,
-                'name' => $item->name,
-                'category' => $item->category ? $item->category->name : 'Unknown',
-                'current_quantity' => $item->quantity,
-
-            ]),
+            'items' => Item::with(['category', 'room'])
+                ->whereHas('category', function ($q) {
+                    $q->where('status', 'active');
+                })
+                ->get()
+                ->map(fn($item) => [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'category' => $item->category ? $item->category->name : 'Unknown',
+                    'current_quantity' => $item->quantity,
+                    'current_room' => $item->room ? [
+                        'id' => $item->room->id,
+                        'name' => $item->room->name,
+                        'location' => $item->room->location,
+                        'display_name' => $item->room->name . ' (' . $item->room->location . ')'
+                    ] : null,
+                ]),
 
             'rooms' => Room::where('status', 'active')->get()->map(fn($room) => [
                 'id' => $room->id,

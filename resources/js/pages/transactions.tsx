@@ -73,87 +73,13 @@ import { toast } from "sonner";
 import { CustomDatePicker } from '@/components/custom-date-picker';
 import PaginationFooter from '@/components/pagination-footer';
 import { BreadcrumbItem } from '@/types';
-
-// Types
-interface Transaction {
-    id: number;
-    reference_number: string | null;
-    type: 'in' | 'out';
-    quantity: number;
-    notes: string | null;
-    transaction_date: string;
-    created_at: string;
-    updated_at: string;
-    user: {
-        id: number;
-        name: string;
-    };
-    item: {
-        id: number;
-        name: string;
-        quantity: number;
-        category: {
-            id: number;
-            name: string;
-        } | null;
-    };
-    fromRoom: {
-        id: number;
-        name: string;
-        location: string;
-    } | null;
-    toRoom: {
-        id: number;
-        name: string;
-        location: string;
-    } | null;
-}
-
-interface Item {
-    id: number;
-    name: string;
-    category: string;
-    current_quantity?: number;
-    current_room?: {
-        id: number;
-        name: string;
-        location: string;
-        display_name: string;
-    } | null;
-}
-
-interface Room {
-    id: number;
-    name: string;
-    location: string;
-    display_name: string;
-}
+import { Transaction, Room, Item, Filters, Pagination, FormData } from '@/types/transaction';
+import { StockOutDialog } from '@/components/transaction/StockOutDialog';
 
 interface PageProps {
-    transactions: Transaction[];
-    pagination: {
-        current_page: number;
-        per_page: number;
-        total: number;
-        last_page: number;
-        from: number;
-        to: number;
-        links: Array<{
-            url: string | null;
-            label: string;
-            active: boolean;
-        }>;
-    };
-    filters: {
-        search?: string;
-        type?: 'in' | 'out' | 'all';
-        item?: number | 'all';
-        fromRoom?: number | 'all';
-        toRoom?: number | 'all';
-        dateFrom?: string;
-        dateTo?: string;
-        perPage?: number;
-    };
+    transactions: Transaction;
+    pagination: Pagination;
+    filters: Filters;
     items: Item[];
     rooms: Room[];
     can: {
@@ -162,18 +88,6 @@ interface PageProps {
         delete: boolean;
     };
     [key: string]: unknown;
-}
-
-interface FormData {
-    item_id: number | null;
-    type: 'in' | 'out';
-    quantity: number | string;
-    from_room_id: number | null;
-    to_room_id: number | null;
-    reference_number: string;
-    notes: string;
-    transaction_date: Date | null;
-    max_quantity?: number;
 }
 
 export default function Transactions() {
@@ -215,12 +129,13 @@ export default function Transactions() {
         reference_number: '',
         notes: '',
         transaction_date: new Date(),
-        max_quantity: undefined
+        max_quantity: undefined,
+        available_rooms: [],
     };
 
     // Form data for different transaction types
     const [stockInForm, setStockInForm] = useState<FormData>({ ...defaultFormData, type: 'in' });
-    const [stockOutForm, setStockOutForm] = useState<FormData>({ ...defaultFormData, type: 'out' });
+    const [stockOutForm, setStockOutForm] = useState<FormData>({ ...defaultFormData, type: 'out', available_rooms: [] });
     const [transferForm, setTransferForm] = useState<FormData>({ ...defaultFormData, type: 'out' });
 
     // Apply filters
@@ -413,8 +328,9 @@ export default function Transactions() {
 
     // Handle item selection in forms
     const handleItemSelection = (itemId: number, formType: 'stockIn' | 'stockOut' | 'transfer') => {
-        const selectedItem = items.find(item => item.id === Number(itemId));
-        console.log(selectedItem)
+        const selectedItem = items.find(item => item.id === itemId);
+
+        if (!selectedItem) return;
 
         if (selectedItem) {
             if (formType === 'stockIn') {
@@ -423,12 +339,16 @@ export default function Transactions() {
                     item_id: itemId
                 }));
             } else if (formType === 'stockOut') {
-                const availableQuantity = selectedItem.current_quantity || 0;
+                const availableRooms = selectedItem.current_room
+                    ? [selectedItem.current_room]
+                    : rooms;
+
                 setStockOutForm(prev => ({
                     ...prev,
                     item_id: itemId,
-                    from_room_id: selectedItem.current_room?.id || null,
-                    max_quantity: availableQuantity
+                    from_room_id: null,
+                    max_quantity: selectedItem?.current_quantity || 0,
+                    available_rooms: availableRooms,
                 }));
             } else if (formType === 'transfer') {
                 setTransferForm(prev => ({
@@ -613,181 +533,24 @@ export default function Transactions() {
                                 </DialogContent>
                             </Dialog>
 
-                            <Dialog open={openStockOutDialog} onOpenChange={setOpenStockOutDialog}>
-                                <DialogTrigger asChild>
-                                    <Button className="gap-2" variant="outline">
-                                        <ArrowUp className="w-4 h-4" />
-                                        Stock Out
+                            <div>
+                                {can.create && (
+                                    <Button
+                                        onClick={() => setOpenStockOutDialog(true)}
+                                        variant="outline"
+                                        className="gap-2"
+                                    >
+                                        <ArrowUp className="w-4 h-4" /> Stock Out
                                     </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
-                                    <DialogHeader>
-                                        <DialogTitle>Stock Out</DialogTitle>
-                                        <DialogDescription>
-                                            Record items leaving inventory
-                                        </DialogDescription>
-                                    </DialogHeader>
+                                )}
 
-                                    <form onSubmit={handleStockOutSubmit} className="space-y-4 py-4">
-                                        <div className="grid grid-cols-1 gap-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock-out-item">Item</Label>
-                                                <Select
-                                                    value={stockOutForm.item_id?.toString() || ""}
-                                                    onValueChange={(value) => handleItemSelection(Number(value), 'stockOut')}
-                                                >
-                                                    <SelectTrigger id="stock-out-item" className="w-full">
-                                                        <SelectValue placeholder="Select an item" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {items.map((item) => (
-                                                            <SelectItem key={item.id} value={item.id.toString()}>
-                                                                {item.name} <span className="text-muted-foreground">({item.category})</span>
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock-out-quantity">Quantity</Label>
-                                                {stockOutForm.max_quantity !== undefined && stockOutForm.item_id && (
-                                                    <p className="text-xs text-muted-foreground">
-                                                        Max available: {stockOutForm.max_quantity}
-                                                    </p>
-                                                )}
-                                                <Input
-                                                    id="stock-out-quantity"
-                                                    type="number"
-                                                    min={1}
-                                                    value={stockOutForm.quantity}
-                                                    max={stockOutForm.max_quantity ?? undefined}
-                                                    onChange={(e) => {
-                                                        const value = parseInt(e.target.value, 10);
-                                                        if (!isNaN(value) && value >= 1 && value <= (stockOutForm.max_quantity ?? Infinity)) {
-                                                            setStockOutForm(prev => ({ ...prev, quantity: value }));
-                                                        } else if (e.target.value === '') {
-                                                            setStockOutForm(prev => ({ ...prev, quantity: '' }));
-                                                        }
-                                                    }}
-                                                    disabled={!stockOutForm.item_id}
-                                                    placeholder={!stockOutForm.item_id ? "Select an item first" : "Enter quantity"}
-                                                    className="appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock-out-room">Source Room</Label>
-                                                <Select
-                                                    value={stockOutForm.from_room_id?.toString() || ""}
-                                                    onValueChange={(value) => setStockOutForm(prev => ({ ...prev, from_room_id: Number(value) }))}
-                                                    disabled={!stockOutForm.item_id}
-                                                >
-                                                    <SelectTrigger id="stock-out-room" className="w-full">
-                                                        <SelectValue placeholder="Select source room" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {stockOutForm.item_id ? (() => {
-                                                            const selectedItem = items.find(item => item.id === Number(stockOutForm.item_id));
-
-                                                            if (!selectedItem) {
-                                                                return (
-                                                                    <SelectItem value="none" disabled>
-                                                                        Item not found
-                                                                    </SelectItem>
-                                                                );
-                                                            }
-
-                                                            const currentRoom = selectedItem.current_room;
-
-                                                            if (!currentRoom) {
-                                                                return (
-                                                                    <SelectItem value="none" disabled>
-                                                                        This item has no assigned room
-                                                                    </SelectItem>
-                                                                );
-                                                            }
-
-                                                            return (
-                                                                <SelectItem
-                                                                    key={currentRoom.id || "fallback-key"}
-                                                                    value={String(currentRoom.id)}
-                                                                >
-                                                                    {currentRoom.display_name || `${currentRoom.name} (${currentRoom.location})`}
-                                                                </SelectItem>
-                                                            );
-                                                        })() : (
-                                                            <SelectItem value="none" disabled>
-                                                                Select an item first
-                                                            </SelectItem>
-                                                        )}
-                                                    </SelectContent>
-                                                </Select>
-
-                                                {/* Info Tambahan */}
-                                                {stockOutForm.item_id && !items.find(item => item.id === Number(stockOutForm.item_id))?.current_room && (
-                                                    <p className="text-xs text-yellow-500 mt-1">
-                                                        This item is not assigned to any room. Please update item details first.
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock-out-reference">Reference Number</Label>
-                                                <Input
-                                                    id="stock-out-reference"
-                                                    value={stockOutForm.reference_number}
-                                                    onChange={(e) => setStockOutForm(prev => ({ ...prev, reference_number: e.target.value }))}
-                                                    placeholder="Optional reference number"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock-out-date">Transaction Date</Label>
-                                                <CustomDatePicker
-                                                    date={stockOutForm.transaction_date}
-                                                    setDate={(date) =>
-                                                        setStockOutForm((prev) => ({ ...prev, transaction_date: date }))
-                                                    }
-                                                    className="w-full"
-                                                />
-
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock-out-notes">Notes</Label>
-                                                <Textarea
-                                                    id="stock-out-notes"
-                                                    value={stockOutForm.notes}
-                                                    onChange={(e) => setStockOutForm(prev => ({ ...prev, notes: e.target.value }))}
-                                                    placeholder="Additional notes (optional)"
-                                                    rows={3}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <DialogFooter>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => setOpenStockOutDialog(false)}
-                                            >
-                                                Cancel
-                                            </Button>
-                                            <Button type="submit" disabled={isLoading}>
-                                                {isLoading ? (
-                                                    <>
-                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        Processing
-                                                    </>
-                                                ) : (
-                                                    <>Record Stock Out</>
-                                                )}
-                                            </Button>
-                                        </DialogFooter>
-                                    </form>
-                                </DialogContent>
-                            </Dialog>
+                                <StockOutDialog
+                                    open={openStockOutDialog}
+                                    onOpenChange={setOpenStockOutDialog}
+                                    items={items}
+                                    can={can}
+                                />
+                            </div>
 
                             <Dialog open={openTransferDialog} onOpenChange={setOpenTransferDialog}>
                                 <DialogTrigger asChild>
