@@ -27,8 +27,6 @@ class Transaction extends Model
         'quantity',
         'from_room_id',
         'to_room_id',
-        'reference_number',
-        'notes',
         'transaction_date',
     ];
 

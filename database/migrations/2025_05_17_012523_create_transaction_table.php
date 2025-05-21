@@ -19,8 +19,6 @@ return new class extends Migration
             $table->integer('quantity');
             $table->foreignId('from_room_id')->nullable()->constrained('rooms')->nullOnDelete();
             $table->foreignId('to_room_id')->nullable()->constrained('rooms')->nullOnDelete();
-            $table->string('reference_number')->nullable();
-            $table->text('notes')->nullable();
             $table->timestamp('transaction_date');
             $table->timestamps();
             $table->softDeletes();

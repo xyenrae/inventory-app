@@ -1,64 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import {
-    Calendar,
-    Search,
-    Filter,
     ArrowDown,
     ArrowUp,
-    FileDown,
     ArrowLeftRight,
-    Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
-
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle
-} from '@/components/ui/card';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle,
-} from '@/components/ui/sheet';
-import { Label } from '@/components/ui/label';
-import { CustomDatePicker } from '@/components/custom-date-picker';
-import PaginationFooter from '@/components/pagination-footer';
 import { BreadcrumbItem } from '@/types';
-import { Transaction, Room, Item, Filters, Pagination, FormData } from '@/types/transaction';
+import { Transaction, Room, Item, Filters, Pagination } from '@/types/transaction';
 import { StockOutDialog } from '@/components/transaction/StockOutDialog';
 import { StockInDialog } from '@/components/transaction/StockInDialog';
 import { TransferDialog } from '@/components/transaction/TransferDialog';
@@ -154,35 +106,6 @@ export default function Transactions() {
                 preserveState: true
             }
         );
-    };
-
-    // Export functions
-    const exportToExcel = () => {
-        const params = new URLSearchParams({
-            search: search || '',
-            type: transactionType || 'all',
-            item: selectedItem?.toString() || 'all',
-            fromRoom: selectedFromRoom?.toString() || 'all',
-            toRoom: selectedToRoom?.toString() || 'all',
-            dateFrom: dateFrom ? format(dateFrom, 'yyyy-MM-dd') : '',
-            dateTo: dateTo ? format(dateTo, 'yyyy-MM-dd') : '',
-        });
-
-        window.location.href = `${route('transactions.exportExcel')}?${params.toString()}`;
-    };
-
-    const exportToPdf = () => {
-        const params = new URLSearchParams({
-            search: search || '',
-            type: transactionType || 'all',
-            item: selectedItem?.toString() || 'all',
-            fromRoom: selectedFromRoom?.toString() || 'all',
-            toRoom: selectedToRoom?.toString() || 'all',
-            dateFrom: dateFrom ? format(dateFrom, 'yyyy-MM-dd') : '',
-            dateTo: dateTo ? format(dateTo, 'yyyy-MM-dd') : '',
-        });
-
-        window.location.href = `${route('transactions.exportPdf')}?${params.toString()}`;
     };
 
     // View transaction details
@@ -330,6 +253,7 @@ export default function Transactions() {
                     setPerPage={setPerPage}
                 />
 
+                {/* Transactions Details */}
                 <TransactionDetails
                     open={openDetailsSheet}
                     onOpenChange={setOpenDetailsSheet}

@@ -49,8 +49,6 @@ export const TransferDialog: React.FC<TransferDialogProps> = ({
         quantity: '',
         from_room_id: null,
         to_room_id: null,
-        reference_number: '',
-        notes: '',
         transaction_date: new Date(),
         max_quantity: undefined,
         available_rooms: [],
@@ -62,8 +60,6 @@ export const TransferDialog: React.FC<TransferDialogProps> = ({
         quantity: '',
         from_room_id: null,
         to_room_id: null,
-        reference_number: '',
-        notes: '',
         transaction_date: new Date(),
         max_quantity: undefined,
         available_rooms: [],
@@ -121,13 +117,11 @@ export const TransferDialog: React.FC<TransferDialogProps> = ({
         }
 
         setIsLoading(true);
-        router.post(route('transactions.transfer'), { // ✅ Gunakan route transfer
+        router.post(route('transactions.transfer'), {
             item_id: transferForm.item_id,
             quantity: Number(transferForm.quantity),
             from_room_id: transferForm.from_room_id,
             to_room_id: transferForm.to_room_id,
-            reference_number: transferForm.reference_number,
-            notes: transferForm.notes,
             transaction_date: transferForm.transaction_date?.toISOString().split('T')[0]
         }, {
             onSuccess: () => {

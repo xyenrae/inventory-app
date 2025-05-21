@@ -89,7 +89,7 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                                 id="search"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Search by reference, item, or notes"
+                                placeholder="Search an items"
                                 className="flex-1"
                             />
                         </div>

@@ -42,8 +42,6 @@ export const StockInDialog: React.FC<StockInDialogProps> = ({
         quantity: '',
         from_room_id: null,
         to_room_id: null,
-        reference_number: '',
-        notes: '',
         transaction_date: new Date(),
         max_quantity: undefined,
         available_rooms: [],
@@ -55,8 +53,6 @@ export const StockInDialog: React.FC<StockInDialogProps> = ({
         quantity: '',
         from_room_id: null,
         to_room_id: null,
-        reference_number: '',
-        notes: '',
         transaction_date: new Date(),
         max_quantity: undefined,
         available_rooms: [],
@@ -111,8 +107,6 @@ export const StockInDialog: React.FC<StockInDialogProps> = ({
             item_id: stockInForm.item_id,
             quantity: Number(stockInForm.quantity),
             to_room_id: stockInForm.from_room_id,
-            reference_number: stockInForm.reference_number,
-            notes: stockInForm.notes,
             transaction_date: stockInForm.transaction_date ? stockInForm.transaction_date.toISOString().split('T')[0] : '',
         }, {
             onSuccess: () => {

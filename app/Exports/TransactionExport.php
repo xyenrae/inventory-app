@@ -37,7 +37,6 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
     {
         return [
             'Transaction ID',
-            'Reference Number',
             'Type',
             'Item',
             'Category',
@@ -46,7 +45,6 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
             'To Room',
             'Date',
             'User',
-            'Notes'
         ];
     }
 
@@ -58,7 +56,6 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
     {
         return [
             $transaction->id,
-            $transaction->reference_number ?? 'N/A',
             $transaction->type === 'in' ? 'Stock In' : 'Stock Out',
             $transaction->item->name ?? 'Unknown Item',
             $transaction->item->category->name ?? 'Unknown Category',
@@ -67,7 +64,6 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
             $transaction->toRoom ? $transaction->toRoom->name . ' (' . $transaction->toRoom->location . ')' : 'N/A',
             $transaction->transaction_date->format('Y-m-d H:i'),
             $transaction->user ? $transaction->user->name : 'Unknown User',
-            $transaction->notes ?? ''
         ];
     }
 

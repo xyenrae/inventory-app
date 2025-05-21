@@ -57,14 +57,11 @@ class TransactionController extends Controller
             ->with(['item', 'item.category', 'fromRoom', 'toRoom', 'user']);
 
         if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('reference_number', 'like', "%{$search}%")
-                    ->orWhere('notes', 'like', "%{$search}%")
-                    ->orWhereHas('item', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    });
+            $query->whereHas('item', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
             });
         }
+
 
         if ($type !== 'all') {
             $query->where('type', $type);
@@ -118,8 +115,6 @@ class TransactionController extends Controller
                         'name' => $transaction->toRoom->name,
                         'location' => $transaction->toRoom->location,
                     ] : null,
-                    'reference_number' => $transaction->reference_number,
-                    'notes' => $transaction->notes,
                     'transaction_date' => $transaction->transaction_date,
                     'user' => [
                         'id' => $transaction->user->id,
@@ -213,8 +208,6 @@ class TransactionController extends Controller
             'quantity' => 'required|integer|min:1',
             'from_room_id' => 'nullable|exists:rooms,id',
             'to_room_id' => 'nullable|exists:rooms,id',
-            'reference_number' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
             'transaction_date' => 'required|date',
         ]);
 
@@ -321,8 +314,6 @@ class TransactionController extends Controller
         $this->authorize('update', $transaction);
 
         $validated = $request->validate([
-            'reference_number' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
             'transaction_date' => 'required|date',
         ]);
 
@@ -390,8 +381,6 @@ class TransactionController extends Controller
             'item_id' => 'required|exists:items,id',
             'quantity' => 'required|integer|min:1',
             'to_room_id' => 'required|exists:rooms,id',
-            'reference_number' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
             'transaction_date' => 'required|date',
         ]);
 
@@ -401,8 +390,6 @@ class TransactionController extends Controller
             'type' => 'in',
             'quantity' => $validated['quantity'],
             'to_room_id' => $validated['to_room_id'],
-            'reference_number' => $validated['reference_number'],
-            'notes' => $validated['notes'],
             'transaction_date' => $validated['transaction_date'],
             'user_id' => Auth::id(),
         ];
@@ -450,8 +437,6 @@ class TransactionController extends Controller
             'item_id' => 'required|exists:items,id',
             'quantity' => 'required|integer|min:1',
             'from_room_id' => 'required|exists:rooms,id',
-            'reference_number' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
             'transaction_date' => 'required|date',
         ]);
 
@@ -478,8 +463,6 @@ class TransactionController extends Controller
             'type' => 'out',
             'quantity' => $validated['quantity'],
             'from_room_id' => $validated['from_room_id'],
-            'reference_number' => $validated['reference_number'],
-            'notes' => $validated['notes'],
             'transaction_date' => $validated['transaction_date'],
             'user_id' => Auth::id(),
         ];
@@ -526,8 +509,6 @@ class TransactionController extends Controller
             'quantity' => 'required|integer|min:1',
             'from_room_id' => 'required|exists:rooms,id',
             'to_room_id' => 'required|exists:rooms,id|different:from_room_id',
-            'reference_number' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
             'transaction_date' => 'required|date',
         ]);
 
@@ -555,8 +536,6 @@ class TransactionController extends Controller
             'quantity' => $validated['quantity'],
             'from_room_id' => $validated['from_room_id'],
             'to_room_id' => $validated['to_room_id'],
-            'reference_number' => $validated['reference_number'],
-            'notes' => 'Transfer: ' . ($validated['notes'] ?? ''),
             'transaction_date' => $validated['transaction_date'],
             'user_id' => Auth::id(),
         ];
@@ -623,12 +602,8 @@ class TransactionController extends Controller
         $query = Transaction::with(['item', 'item.category', 'fromRoom', 'toRoom', 'user']);
 
         if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('reference_number', 'like', "%{$search}%")
-                    ->orWhere('notes', 'like', "%{$search}%")
-                    ->orWhereHas('item', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    });
+            $query->whereHas('item', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
             });
         }
 

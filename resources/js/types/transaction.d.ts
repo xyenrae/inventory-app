@@ -1,9 +1,7 @@
 export interface Transaction {
     id: number;
-    reference_number: string | null;
     type: 'in' | 'out';
     quantity: number;
-    notes: string | null;
     transaction_date: string;
     created_at: string;
     updated_at: string;
@@ -80,8 +78,6 @@ export interface FormData {
     quantity: number | string;
     from_room_id: number | null;
     to_room_id: number | null;
-    reference_number: string;
-    notes: string;
     transaction_date: Date | null;
     max_quantity?: number;
     available_rooms?: Array<{

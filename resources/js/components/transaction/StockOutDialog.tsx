@@ -42,8 +42,6 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
         quantity: '',
         from_room_id: null,
         to_room_id: null,
-        reference_number: '',
-        notes: '',
         transaction_date: new Date(),
         max_quantity: undefined,
         available_rooms: [],
@@ -55,8 +53,6 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
         quantity: '',
         from_room_id: null,
         to_room_id: null,
-        reference_number: '',
-        notes: '',
         transaction_date: new Date(),
         max_quantity: undefined,
         available_rooms: [],
@@ -110,8 +106,6 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
             item_id: stockOutForm.item_id,
             quantity: Number(stockOutForm.quantity),
             from_room_id: stockOutForm.from_room_id,
-            reference_number: stockOutForm.reference_number,
-            notes: stockOutForm.notes,
             transaction_date: stockOutForm.transaction_date ? stockOutForm.transaction_date.toISOString().split('T')[0] : '',
         }, {
             onSuccess: () => {
@@ -178,8 +172,7 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
                             <Label htmlFor="stock-out-item">Item</Label>
                             <Select
                                 value={stockOutForm.item_name || ""}
-                                onValueChange={(value) => handleItemSelection(value)
-                                }                             >
+                                onValueChange={(value) => handleItemSelection(value)}>
                                 <SelectTrigger id="stock-out-item" className="w-full">
                                     <SelectValue placeholder="Select an item" />
                                 </SelectTrigger>

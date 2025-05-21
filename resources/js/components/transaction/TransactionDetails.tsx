@@ -63,11 +63,6 @@ export const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                         </div>
 
                         <div>
-                            <h3 className="text-sm font-medium text-muted-foreground">Reference Number</h3>
-                            <p className="mt-1">{transaction.reference_number || '-'}</p>
-                        </div>
-
-                        <div>
                             <h3 className="text-sm font-medium text-muted-foreground">Created By</h3>
                             <p className="mt-1">{transaction.user.name}</p>
                         </div>
@@ -127,16 +122,7 @@ export const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                         </div>
                     </div>
 
-                    {transaction.notes && (
-                        <>
-                            <Separator />
 
-                            <div>
-                                <h3 className="text-sm font-medium text-muted-foreground mb-2">Notes</h3>
-                                <p className="text-sm whitespace-pre-wrap">{transaction.notes}</p>
-                            </div>
-                        </>
-                    )}
 
                     <SheetFooter>
                         <Button variant="outline" onClick={() => onOpenChange(false)}>

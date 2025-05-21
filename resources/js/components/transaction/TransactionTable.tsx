@@ -71,7 +71,6 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                             <TableHead>Quantity</TableHead>
                             <TableHead>Source</TableHead>
                             <TableHead>Destination</TableHead>
-                            <TableHead>Reference</TableHead>
                             <TableHead>User</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
@@ -126,9 +125,6 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                                         ) : (
                                             <span className="text-muted-foreground">-</span>
                                         )}
-                                    </TableCell>
-                                    <TableCell>
-                                        {transaction.reference_number || <span className="text-muted-foreground">-</span>}
                                     </TableCell>
                                     <TableCell>{transaction.user.name}</TableCell>
                                     <TableCell className="text-right">
