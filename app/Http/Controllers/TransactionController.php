@@ -151,7 +151,8 @@ class TransactionController extends Controller
                         'id' => $item->room->id,
                         'name' => $item->room->name,
                         'location' => $item->room->location,
-                        'display_name' => $item->room->name . ' (' . $item->room->location . ')'
+                        'display_name' => $item->room->name . ' (' . $item->room->location . ')',
+                        'current_quantity' => $item->quantity,
                     ] : null,
                 ]),
 

@@ -75,6 +75,7 @@ export interface Pagination {
 
 export interface FormData {
     item_id: number | null;
+    item_name?: string;
     type: 'in' | 'out';
     quantity: number | string;
     from_room_id: number | null;
@@ -87,5 +88,6 @@ export interface FormData {
         id: number;
         display_name: string;
         location?: string;
+        current_quantity: number;
     }>;
 }
