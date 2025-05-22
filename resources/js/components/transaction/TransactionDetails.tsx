@@ -38,7 +38,7 @@ export const TransactionDetails: React.FC<TransactionDetailsProps> = ({
                     </SheetDescription>
                 </SheetHeader>
 
-                <div className="space-y-6 py-6">
+                <div className="space-y-6 py-6 ml-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <h3 className="text-sm font-medium text-muted-foreground">Transaction Type</h3>
@@ -70,7 +70,7 @@ export const TransactionDetails: React.FC<TransactionDetailsProps> = ({
 
                     <Separator />
 
-                    <div>
+                    <div className='pr-4'>
                         <h3 className="text-sm font-medium text-muted-foreground mb-2">Item Details</h3>
                         <div className="bg-muted rounded-md p-4">
                             <div className="grid grid-cols-2 gap-4">
@@ -124,8 +124,8 @@ export const TransactionDetails: React.FC<TransactionDetailsProps> = ({
 
 
 
-                    <SheetFooter>
-                        <Button variant="outline" onClick={() => onOpenChange(false)}>
+                    <SheetFooter className='p-0 pr-4'>
+                        <Button variant="outline" onClick={() => onOpenChange(false)} className='w-full'>
                             Close
                         </Button>
                     </SheetFooter>

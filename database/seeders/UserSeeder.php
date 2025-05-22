@@ -71,6 +71,11 @@ class UserSeeder extends Seeder
 
         // Staff: CRUD for items, categories & rooms, but no access to users
         $staffPermissions = [
+            // Transactions
+            'view transactions',
+            'create transactions',
+            'edit transactions',
+
             // Items
             'view items',
             'create items',
@@ -91,6 +96,7 @@ class UserSeeder extends Seeder
 
         // Viewer: read-only access to items, categories and rooms
         $viewerPermissions = [
+            'view transactions',
             'view items',
             'view categories',
             'view rooms',

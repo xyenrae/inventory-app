@@ -279,10 +279,11 @@ export const TransferDialog: React.FC<TransferDialogProps> = ({
                                 id="stock-in-quantity"
                                 type="number"
                                 min={1}
+                                max={transferForm.max_quantity ?? undefined}
                                 value={transferForm.quantity}
                                 onChange={(e) => {
                                     const value = parseInt(e.target.value, 10);
-                                    if (!isNaN(value) && value >= 1) {
+                                    if (!isNaN(value) && value >= 1 && value <= (transferForm.max_quantity ?? Infinity)) {
                                         setTransferForm(prev => ({ ...prev, quantity: value }));
                                     } else if (e.target.value === '') {
                                         setTransferForm(prev => ({ ...prev, quantity: '' }));
