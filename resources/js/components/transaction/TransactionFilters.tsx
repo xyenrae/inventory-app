@@ -34,6 +34,7 @@ interface TransactionFiltersProps {
     filters: Filters;
     search: string;
     transactionType: string;
+    userType: string;
     selectedItem: number | string;
     selectedFromRoom: number | string;
     selectedToRoom: number | string;
@@ -43,6 +44,7 @@ interface TransactionFiltersProps {
     isLoadingResetFilters: boolean;
     setSearch: (value: string) => void;
     setTransactionType: (value: string) => void;
+    setUserType: (value: string) => void;
     setSelectedItem: (value: number | string) => void;
     setSelectedFromRoom: (value: number | string) => void;
     setSelectedToRoom: (value: number | string) => void;
@@ -58,6 +60,7 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
     filters,
     search,
     transactionType,
+    userType,
     selectedItem,
     selectedFromRoom,
     selectedToRoom,
@@ -67,6 +70,7 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
     isLoadingResetFilters,
     setSearch,
     setTransactionType,
+    setUserType,
     setSelectedItem,
     setSelectedFromRoom,
     setSelectedToRoom,
@@ -108,6 +112,22 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                                 <SelectItem value="in">Stock In</SelectItem>
                                 <SelectItem value="out">Stock Out</SelectItem>
                                 <SelectItem value="transfer">Transfer</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="user-type">User Type</Label>
+                        <Select
+                            value={userType}
+                            onValueChange={setUserType}
+                        >
+                            <SelectTrigger id="user-type">
+                                <SelectValue placeholder="Select User type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All User</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
+                                <SelectItem value="staff">Staff</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

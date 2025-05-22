@@ -36,6 +36,7 @@ class TransactionController extends Controller
             'perPage' => 'sometimes|integer|min:1|max:100',
             'search' => 'nullable|string|max:255',
             'type' => 'sometimes|string|in:in,out,transfer,all',
+            'userType' => 'sometimes|string|in:all,admin,staff',
             'item' => 'sometimes|exists:items,id',
             'fromRoom' => 'sometimes|exists:rooms,id',
             'toRoom' => 'sometimes|exists:rooms,id',
@@ -47,6 +48,7 @@ class TransactionController extends Controller
         $perPage = $validated['perPage'] ?? 10;
         $search = $validated['search'] ?? '';
         $type = $validated['type'] ?? 'all';
+        $userType = $validated['userType'] ?? 'all';
         $item = $validated['item'] ?? 'all';
         $fromRoom = $validated['fromRoom'] ?? 'all';
         $toRoom = $validated['toRoom'] ?? 'all';
@@ -70,6 +72,12 @@ class TransactionController extends Controller
             } else {
                 $query->where('type', $type);
             }
+        }
+
+        if ($userType !== 'all') {
+            $query->whereHas('user.roles', function ($q) use ($userType) {
+                $q->where('name', $userType);
+            });
         }
 
         if ($item !== 'all') {
@@ -140,6 +148,7 @@ class TransactionController extends Controller
             'filters' => [
                 'search' => $search,
                 'type' => $type,
+                'userType' => $userType,
                 'item' => $item,
                 'fromRoom' => $fromRoom,
                 'toRoom' => $toRoom,

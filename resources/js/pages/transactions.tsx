@@ -38,6 +38,7 @@ export default function Transactions() {
     // State for filters
     const [search, setSearch] = useState<string>(filters.search || '');
     const [transactionType, setTransactionType] = useState<string>(filters.type || 'all');
+    const [userType, setUserType] = useState<string>(filters.type || 'all');
     const [selectedItem, setSelectedItem] = useState<number | string>(filters.item || 'all');
     const [selectedFromRoom, setSelectedFromRoom] = useState<number | string>(filters.fromRoom || 'all');
     const [selectedToRoom, setSelectedToRoom] = useState<number | string>(filters.toRoom || 'all');
@@ -63,6 +64,7 @@ export default function Transactions() {
         const params = {
             search,
             type: transactionType !== 'all' ? transactionType : undefined,
+            userType: userType !== 'all' ? userType : undefined,
             item: selectedItem !== 'all' ? selectedItem : undefined,
             fromRoom: selectedFromRoom !== 'all' ? selectedFromRoom : undefined,
             toRoom: selectedToRoom !== 'all' ? selectedToRoom : undefined,
@@ -84,6 +86,7 @@ export default function Transactions() {
 
         setSearch('');
         setTransactionType('all');
+        setUserType('all');
         setSelectedItem('all');
         setSelectedFromRoom('all');
         setSelectedToRoom('all');
@@ -120,6 +123,7 @@ export default function Transactions() {
             {
                 search,
                 type: transactionType,
+                userType: userType,
                 item: selectedItem,
                 fromRoom: selectedFromRoom,
                 toRoom: selectedToRoom,
@@ -213,6 +217,7 @@ export default function Transactions() {
                     filters={filters}
                     search={search}
                     transactionType={transactionType}
+                    userType={userType}
                     selectedItem={selectedItem}
                     selectedFromRoom={selectedFromRoom}
                     selectedToRoom={selectedToRoom}
@@ -222,6 +227,7 @@ export default function Transactions() {
                     isLoadingResetFilters={isLoadingResetFilters}
                     setSearch={setSearch}
                     setTransactionType={setTransactionType}
+                    setUserType={setUserType}
                     setSelectedItem={setSelectedItem}
                     setSelectedFromRoom={setSelectedFromRoom}
                     setSelectedToRoom={setSelectedToRoom}
