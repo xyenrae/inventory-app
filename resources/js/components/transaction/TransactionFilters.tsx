@@ -173,7 +173,7 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
 
                     <div className="space-y-2">
                         <Label htmlFor="date-range">Date Range</Label>
-                        <div className="flex items-center gap-2 w-full">
+                        <div className="md:flex items-center gap-2 w-full">
                             <span className="text-muted-foreground text-sm">from</span>
                             <div className="relative flex-1">
                                 <CustomDatePicker

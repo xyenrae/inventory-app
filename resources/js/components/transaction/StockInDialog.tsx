@@ -163,7 +163,7 @@ export const StockInDialog: React.FC<StockInDialogProps> = ({
             <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Stock In</DialogTitle>
-                    <DialogDescription>Record items leaving inventory</DialogDescription>
+                    <DialogDescription>Record items entering inventory</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 py-4">
                     {/* Form Fields */}

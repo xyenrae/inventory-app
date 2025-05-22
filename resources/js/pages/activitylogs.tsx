@@ -270,7 +270,10 @@ export default function ActivityLogs({
 
       <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Activity Logs</h1>
+          <div>
+            <h1 className="text-2xl font-bold">Activity Logs</h1>
+            <p className="text-muted-foreground">Track changes and actions performed across the system</p>
+          </div>
         </div>
 
         <Card>

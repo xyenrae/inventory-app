@@ -323,142 +323,148 @@ export default function Inventory({
       <Head title="Inventory Management" />
 
       <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Inventory Management</h1>
-          <div className='md:flex'>
+        <div className="md:flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Inventory Management</h1>
+            <p className='text-muted-foreground'>Manage your items, and stock availability</p>
+          </div>
+          <div className='grid grid-cols-2 gap-4 overflow-hidden items-center mt-6 md:mt-0'>
             <ExportDropdown filters={filters} />
-            {canCreateItems && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                      <DialogTrigger asChild>
-                        <Button className="flex items-center cursor-pointer mt-2 md:mt-0" onClick={openAddDialog}>
-                          <Plus className="h-4 w-4 mr-2" />
-                          Add Item
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                          <DialogTitle>Add New Item</DialogTitle>
-                          <DialogDescription>
-                            Fill in the details to add a new inventory item.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="grid gap-2">
-                            <Label htmlFor="name">Item Name</Label>
-                            <Input
-                              id="name"
-                              value={data.name}
-                              onChange={(e) => setData('name', e.target.value)}
-                              placeholder="Enter item name"
-                            />
-                            {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="category">Category</Label>
-                            <Select
-                              value={data.category_id === 0 ? '' : String(data.category_id)}
-                              onValueChange={(value) => setData('category_id', parseInt(value))}
-                            >
-                              <SelectTrigger id="category" className='cursor-pointer'>
-                                <SelectValue placeholder="Select category" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {categories.map(category => (
-                                  <SelectItem key={category.id} value={String(category.id)} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'>
-                                    {category.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            {errors.category_id && <p className="text-sm text-red-500">{errors.category_id}</p>}
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="room">Room</Label>
-                            <Select
-                              value={data.room_id === 0 ? '' : String(data.room_id)}
-                              onValueChange={(value) => setData('room_id', parseInt(value))}
-                            >
-                              <SelectTrigger id="room" className='cursor-pointer'>
-                                <SelectValue placeholder="Select room" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {rooms.map(room => (
-                                  <SelectItem key={room.id} value={String(room.id)}
-                                    className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
-                                  >
-                                    {room.display_name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            {errors.room_id && <p className="text-sm text-red-500">{errors.room_id}</p>}
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                              <Label htmlFor="quantity">Quantity</Label>
-                              <Input
-                                id="quantity"
-                                type="number"
-                                min="0"
-                                className="w-full [&::-webkit-inner-spin-button]:appearance-none"
-                                value={data.quantity === 0 ? "" : data.quantity}
-                                placeholder="0"
-                                onChange={(e) => setData('quantity', parseInt(e.target.value || '0'))}
-                              />
-                              {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
-                            </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor="price">Price (IDR)</Label>
-                              <Input
-                                id="price"
-                                type="number"
-                                min="0"
-                                className="w-full [&::-webkit-inner-spin-button]:appearance-none"
-                                value={data.price === 0 ? "" : data.price}
-                                onChange={(e) => setData('price', parseInt(e.target.value || '0'))}
-                                placeholder="0"
-                              />
-                              {errors.price && <p className="text-sm text-red-500">{errors.price}</p>}
-                            </div>
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="status">Status</Label>
-                            <Select
-                              value={data.status}
-                              onValueChange={(value) => setData('status', value)}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select status" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {statusOptions.map(option => (
-                                  <SelectItem key={option.value} value={option.value} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
-                                  >
-                                    {option.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            {errors.status && <p className="text-sm text-red-500">{errors.status}</p>}
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button onClick={handleAddItem} disabled={processing} className="cursor-pointer">
+            <div>
+              {canCreateItems && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button className="flex items-center cursor-pointer w-full" onClick={openAddDialog}>
+                            <Plus className="h-4 w-4 mr-2" />
                             Add Item
                           </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Add a new inventory item</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}</div>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Add New Item</DialogTitle>
+                            <DialogDescription>
+                              Fill in the details to add a new inventory item.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="grid gap-4 py-4">
+                            <div className="grid gap-2">
+                              <Label htmlFor="name">Item Name</Label>
+                              <Input
+                                id="name"
+                                value={data.name}
+                                onChange={(e) => setData('name', e.target.value)}
+                                placeholder="Enter item name"
+                              />
+                              {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                            </div>
+                            <div className="grid gap-2">
+                              <Label htmlFor="category">Category</Label>
+                              <Select
+                                value={data.category_id === 0 ? '' : String(data.category_id)}
+                                onValueChange={(value) => setData('category_id', parseInt(value))}
+                              >
+                                <SelectTrigger id="category" className='cursor-pointer'>
+                                  <SelectValue placeholder="Select category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {categories.map(category => (
+                                    <SelectItem key={category.id} value={String(category.id)} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'>
+                                      {category.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              {errors.category_id && <p className="text-sm text-red-500">{errors.category_id}</p>}
+                            </div>
+                            <div className="grid gap-2">
+                              <Label htmlFor="room">Room</Label>
+                              <Select
+                                value={data.room_id === 0 ? '' : String(data.room_id)}
+                                onValueChange={(value) => setData('room_id', parseInt(value))}
+                              >
+                                <SelectTrigger id="room" className='cursor-pointer'>
+                                  <SelectValue placeholder="Select room" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {rooms.map(room => (
+                                    <SelectItem key={room.id} value={String(room.id)}
+                                      className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                    >
+                                      {room.display_name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              {errors.room_id && <p className="text-sm text-red-500">{errors.room_id}</p>}
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="grid gap-2">
+                                <Label htmlFor="quantity">Quantity</Label>
+                                <Input
+                                  id="quantity"
+                                  type="number"
+                                  min="0"
+                                  className="w-full [&::-webkit-inner-spin-button]:appearance-none"
+                                  value={data.quantity === 0 ? "" : data.quantity}
+                                  placeholder="0"
+                                  onChange={(e) => setData('quantity', parseInt(e.target.value || '0'))}
+                                />
+                                {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
+                              </div>
+                              <div className="grid gap-2">
+                                <Label htmlFor="price">Price (IDR)</Label>
+                                <Input
+                                  id="price"
+                                  type="number"
+                                  min="0"
+                                  className="w-full [&::-webkit-inner-spin-button]:appearance-none"
+                                  value={data.price === 0 ? "" : data.price}
+                                  onChange={(e) => setData('price', parseInt(e.target.value || '0'))}
+                                  placeholder="0"
+                                />
+                                {errors.price && <p className="text-sm text-red-500">{errors.price}</p>}
+                              </div>
+                            </div>
+                            <div className="grid gap-2">
+                              <Label htmlFor="status">Status</Label>
+                              <Select
+                                value={data.status}
+                                onValueChange={(value) => setData('status', value)}
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {statusOptions.map(option => (
+                                    <SelectItem key={option.value} value={option.value} className='cursor-pointer px-4 py-2 text-sm hover:bg-sidebar-accent rounded-md transition-colors duration-150'
+                                    >
+                                      {option.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              {errors.status && <p className="text-sm text-red-500">{errors.status}</p>}
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button onClick={handleAddItem} disabled={processing} className="cursor-pointer">
+                              Add Item
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Add a new inventory item</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
+          </div>
         </div>
 
         <Card>

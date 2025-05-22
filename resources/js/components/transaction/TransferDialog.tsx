@@ -175,8 +175,8 @@ export const TransferDialog: React.FC<TransferDialogProps> = ({
             }}>
             <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Stock In</DialogTitle>
-                    <DialogDescription>Record items leaving inventory</DialogDescription>
+                    <DialogTitle>Transfer</DialogTitle>
+                    <DialogDescription>Record item movements between rooms</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 py-4">
                     {/* Form Fields */}
@@ -314,7 +314,7 @@ export const TransferDialog: React.FC<TransferDialogProps> = ({
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing
                                 </>
                             ) : (
-                                <>Record Stock In</>
+                                <>Record Transfer</>
                             )}
                         </Button>
                     </DialogFooter>

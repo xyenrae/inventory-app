@@ -330,7 +330,10 @@ export default function Users({
 
       <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">User Management</h1>
+          <div>
+            <h1 className="text-2xl font-bold">User Management</h1>
+            <p className="text-muted-foreground">Manage your users and their access roles</p>
+          </div>
           {canCreateUsers && (
             <TooltipProvider>
               <Tooltip>

@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search, ArrowDown, ArrowUp, ArrowLeftRight } from 'lucide-react';
+import { Search, ArrowDown, ArrowUp, ArrowLeftRight, Eye } from 'lucide-react';
 import PaginationFooter from '@/components/pagination-footer';
 import { Transaction } from '@/types/transaction';
 import { Label } from '../ui/label';
@@ -138,7 +138,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                                             onClick={() => viewTransactionDetails(transaction)}
                                             disabled={isLoading}
                                         >
-                                            <Search className="h-4 w-4" />
+                                            <Eye className="h-4 w-4" />
                                             <span className="sr-only">View details</span>
                                         </Button>
                                     </TableCell>
@@ -148,40 +148,16 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     </TableBody>
                 </Table>
             </CardContent>
-            <CardFooter className="flex justify-between">
-                <div className="flex items-center gap-2">
-                    <Label htmlFor="per-page">Show</Label>
-                    <Select
-                        value={perPage.toString()}
-                        onValueChange={(value) => {
-                            setPerPage(Number(value));
-                        }}
-                    >
-                        <SelectTrigger id="per-page" className="w-[70px]">
-                            <SelectValue placeholder="10" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="10">10</SelectItem>
-                            <SelectItem value="25">25</SelectItem>
-                            <SelectItem value="50">50</SelectItem>
-                            <SelectItem value="100">100</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <span className="text-sm text-muted-foreground">
-                        Showing {pagination.from}-{pagination.to} of {pagination.total}
-                    </span>
-                </div>
 
-                <PaginationFooter
-                    pagination={pagination}
-                    perPage={perPage}
-                    perPageOptions={[10, 25, 50, 100]}
-                    filters={filters}
-                    isLoading={isLoading}
-                    goToPage={goToPage}
-                    setPerPage={setPerPage}
-                />
-            </CardFooter>
+            <PaginationFooter
+                pagination={pagination}
+                perPage={perPage}
+                perPageOptions={[10, 25, 50, 100]}
+                filters={filters}
+                isLoading={isLoading}
+                goToPage={goToPage}
+                setPerPage={setPerPage}
+            />
         </Card>
     );
 };

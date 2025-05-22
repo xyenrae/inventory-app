@@ -299,7 +299,10 @@ export default function Rooms({
 
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">Room Management</h1>
+                    <div>
+                        <h1 className="text-2xl font-bold">Room Management</h1>
+                        <p className="text-muted-foreground">Manage your rooms and storage locations</p>
+                    </div>
                     {canCreateRooms && (
                         <TooltipProvider>
                             <Tooltip>

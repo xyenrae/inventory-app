@@ -146,22 +146,22 @@ export default function Transactions() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Room Management" />
+            <Head title="Transaction Management" />
 
-            <div className="space-y-6 p-6">
-                <div className="flex justify-between items-center">
+            <div className="space-y-4 p-4">
+                <div className="md:flex justify-between items-center">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Inventory Transactions</h1>
-                        <p className="text-muted-foreground">Manage and track item movements</p>
+                        <h1 className="text-2xl font-bold">Inventory Transactions</h1>
+                        <p className="text-muted-foreground">Manage your transactions and inventory movements</p>
                     </div>
 
                     {can.create && (
-                        <div className="flex gap-2">
+                        <div className="grid grid-cols-3 md:flex gap-2 mt-6 md:mt-0">
                             <div>
                                 <Button
                                     onClick={() => setOpenStockInDialog(true)}
                                     variant="outline"
-                                    className="gap-2"
+                                    className="gap-2 w-full"
                                 >
                                     <ArrowDown className="w-4 h-4" /> Stock In
                                 </Button>
@@ -177,7 +177,7 @@ export default function Transactions() {
                                 <Button
                                     onClick={() => setOpenStockOutDialog(true)}
                                     variant="outline"
-                                    className="gap-2"
+                                    className="gap-2 w-full"
                                 >
                                     <ArrowUp className="w-4 h-4" /> Stock Out
                                 </Button>
@@ -194,7 +194,7 @@ export default function Transactions() {
                                 <Button
                                     onClick={() => setOpenTransferDialog(true)}
                                     variant="outline"
-                                    className="gap-2"
+                                    className="gap-2 w-full"
                                 >
                                     <ArrowLeftRight className="w-4 h-4" /> Transfer
                                 </Button>
