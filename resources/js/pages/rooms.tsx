@@ -298,8 +298,8 @@ export default function Rooms({
             <Head title="Room Management" />
 
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="flex justify-between items-center">
-                    <div>
+                <div className="md:flex justify-between items-center">
+                    <div className='pb-4 md:pb-0'>
                         <h1 className="text-2xl font-bold">Room Management</h1>
                         <p className="text-muted-foreground">Manage your rooms and storage locations</p>
                     </div>
@@ -309,7 +309,7 @@ export default function Rooms({
                                 <TooltipTrigger asChild>
                                     <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                                         <DialogTrigger asChild>
-                                            <Button className="flex items-center cursor-pointer" onClick={openAddDialog}>
+                                            <Button className="flex items-center cursor-pointer w-full md:w-fit" onClick={openAddDialog}>
                                                 <Plus className="h-4 w-4 mr-2" />
                                                 Add Room
                                             </Button>
