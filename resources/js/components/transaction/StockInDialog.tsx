@@ -241,7 +241,7 @@ export const StockInDialog: React.FC<StockInDialogProps> = ({
                         <div className="space-y-2">
                             <Label htmlFor="stock-in-quantity">Quantity</Label>
                             {stockInForm.max_quantity !== undefined && stockInForm.item_id && (
-                                <p className="text-xs text-muted-foreground">Stock available: {stockInForm.max_quantity}</p>
+                                <p className="text-xs text-muted-foreground">Current Stock: <span className="font-semibold"> {stockInForm.max_quantity}</span></p>
                             )}
                             <Input
                                 id="stock-in-quantity"
