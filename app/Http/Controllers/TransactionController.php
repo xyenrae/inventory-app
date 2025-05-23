@@ -389,6 +389,7 @@ class TransactionController extends Controller
         $pdf = PDF::loadView('exports.transactions-pdf', [
             'transactions' => $transactions,
             'generatedAt' => now()->format('F d, Y H:i:s'),
+            'filters' => $validated,
         ]);
 
         return $pdf->download('transactions.pdf');
@@ -602,6 +603,7 @@ class TransactionController extends Controller
         return $request->validate([
             'search' => 'nullable|string|max:255',
             'type' => 'sometimes|string|in:in,out,transfer,all',
+            'userType' => 'sometimes|string|in:admin,staff,all',
             'item' => 'sometimes|exists:items,id',
             'fromRoom' => 'sometimes|exists:rooms,id',
             'toRoom' => 'sometimes|exists:rooms,id',

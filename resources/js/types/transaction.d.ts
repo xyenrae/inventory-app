@@ -48,6 +48,7 @@ export interface Room {
 export interface Filters {
     search?: string;
     type?: 'in' | 'out' | 'transfer' | 'all';
+    userType?: 'admin' | 'staff' | 'all';
     item?: number | 'all';
     fromRoom?: number | 'all';
     toRoom?: number | 'all';

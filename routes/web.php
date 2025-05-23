@@ -50,6 +50,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/transactions/stock-out', [TransactionController::class, 'stockOut'])->name('transactions.stockOut');
     Route::post('/transactions/transfer', [TransactionController::class, 'transfer'])->name('transactions.transfer');
 
+    Route::get('/transactions/export/excel', [TransactionController::class, 'exportExcel'])
+        ->name('transactions.export.excel');
+
+    Route::get('/transactions/export/pdf', [TransactionController::class, 'exportPdf'])
+        ->name('transactions.export.pdf');
 
     // Resourceful routes
     Route::resource('inventory', InventoryController::class);

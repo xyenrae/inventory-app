@@ -13,7 +13,14 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class TransactionsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle, WithEvents
+class TransactionsExport implements
+    FromCollection,
+    WithHeadings,
+    WithMapping,
+    WithStyles,
+    ShouldAutoSize,
+    WithTitle,
+    WithEvents
 {
     protected $transactions;
 
@@ -22,17 +29,11 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
         $this->transactions = $transactions;
     }
 
-    /**
-     * @return \Illuminate\Support\Collection
-     */
     public function collection()
     {
         return $this->transactions;
     }
 
-    /**
-     * @return array
-     */
     public function headings(): array
     {
         return [
@@ -48,68 +49,55 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
         ];
     }
 
-    /**
-     * @param mixed $transaction
-     * @return array
-     */
     public function map($transaction): array
     {
         return [
             $transaction->id,
-            $transaction->type === 'in' ? 'Stock In' : 'Stock Out',
+            match ($transaction->type) {
+                'in' => 'Stock In',
+                'out' => 'Stock Out',
+                'transfer' => 'Transfer',
+                default => 'Unknown',
+            },
             $transaction->item->name ?? 'Unknown Item',
             $transaction->item->category->name ?? 'Unknown Category',
             $transaction->quantity,
             $transaction->fromRoom ? $transaction->fromRoom->name . ' (' . $transaction->fromRoom->location . ')' : 'N/A',
             $transaction->toRoom ? $transaction->toRoom->name . ' (' . $transaction->toRoom->location . ')' : 'N/A',
-            $transaction->transaction_date->format('Y-m-d H:i'),
-            $transaction->user ? $transaction->user->name : 'Unknown User',
+            $transaction->transaction_date?->format('Y-m-d H:i') ?? 'N/A',
+            $transaction->user?->name ?? 'Unknown User',
         ];
     }
 
-    /**
-     * @param Worksheet $sheet
-     * @return array
-     */
     public function styles(Worksheet $sheet)
     {
         return [
-            // Style the first row as bold
             1 => ['font' => ['bold' => true]],
         ];
     }
 
-    /**
-     * @return string
-     */
     public function title(): string
     {
         return 'Transactions';
     }
 
-    /**
-     * @return array
-     */
     public function registerEvents(): array
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $event->sheet->getStyle('A1:K1')->applyFromArray([
+                $sheet = $event->sheet;
+
+                $sheet->getStyle('A1:I1')->applyFromArray([
                     'fill' => [
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'startColor' => [
-                            'rgb' => 'E2E8F0',
-                        ],
+                        'startColor' => ['rgb' => 'E2E8F0'],
                     ],
                 ]);
 
-                // Auto filter
-                $lastColumn = 'K';
-                $lastRow = $event->sheet->getHighestRow();
-                $event->sheet->setAutoFilter("A1:{$lastColumn}1");
+                $lastRow = $sheet->getHighestRow();
+                $sheet->setAutoFilter("A1:I1");
 
-                // Format the cells
-                $event->sheet->getStyle('A1:K' . $lastRow)->applyFromArray([
+                $sheet->getStyle("A1:I{$lastRow}")->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -118,33 +106,21 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
                     ],
                 ]);
 
-                // Conditional formatting for Stock In/Out
-                $event->sheet->getStyle('C2:C' . $lastRow)->applyFromArray([
-                    'font' => [
-                        'color' => ['rgb' => '000000'],
-                    ],
-                ]);
-
-                // Loop through each row to set background color based on transaction type
+                // Format berdasarkan kolom "Type" (B)
                 for ($i = 2; $i <= $lastRow; $i++) {
-                    $type = $event->sheet->getCell('C' . $i)->getValue();
+                    $type = $sheet->getCell("B{$i}")->getValue();
+                    $fillColor = match ($type) {
+                        'Stock In' => 'DCFCE7',   // Light green
+                        'Stock Out' => 'FEE2E2',  // Light red
+                        'Transfer' => 'DBEAFE',   // Light blue
+                        default => null,
+                    };
 
-                    if ($type == 'Stock In') {
-                        $event->sheet->getStyle('C' . $i)->applyFromArray([
+                    if ($fillColor) {
+                        $sheet->getStyle("B{$i}")->applyFromArray([
                             'fill' => [
                                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                                'startColor' => [
-                                    'rgb' => 'DCFCE7', // Light green for stock in
-                                ],
-                            ],
-                        ]);
-                    } elseif ($type == 'Stock Out') {
-                        $event->sheet->getStyle('C' . $i)->applyFromArray([
-                            'fill' => [
-                                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                                'startColor' => [
-                                    'rgb' => 'FEE2E2', // Light red for stock out
-                                ],
+                                'startColor' => ['rgb' => $fillColor],
                             ],
                         ]);
                     }

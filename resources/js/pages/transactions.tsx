@@ -17,6 +17,7 @@ import { TransferDialog } from '@/components/transaction/TransferDialog';
 import { TransactionFilters } from '@/components/transaction/TransactionFilters';
 import { TransactionsTable } from '@/components/transaction/TransactionTable';
 import { TransactionDetails } from '@/components/transaction/TransactionDetails';
+import TransactionExportDropdown from '@/components/transaction-export-dropdown';
 
 interface PageProps {
     transactions: Transaction[];
@@ -153,10 +154,12 @@ export default function Transactions() {
                     <div>
                         <h1 className="text-2xl font-bold">Inventory Transactions</h1>
                         <p className="text-muted-foreground">Manage your transactions and inventory movements</p>
+                        <TransactionExportDropdown filters={filters} />
+
                     </div>
 
                     {can.create && (
-                        <div className="grid grid-cols-3 md:flex gap-2 mt-6 md:mt-0">
+                        <div className="grid grid-cols-3 md:flex gap-2 mt-4 md:mt-0">
                             <div>
                                 <Button
                                     onClick={() => setOpenStockInDialog(true)}
