@@ -20,7 +20,7 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({ filters }) => {
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="flex items-center gap-2 hover:cursor-pointer w-full mr-4">
                     <Download className="h-4 w-4" />
-                    <span>Export</span>
+                    <span>Export Data</span>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40 p-2">
