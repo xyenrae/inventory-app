@@ -35,8 +35,10 @@ export function Breadcrumbs({ breadcrumbs }: { breadcrumbs: BreadcrumbItemType[]
             capabilities: [
                 "View dashboard",
                 "Export items",
+                "Manage transactions",
                 "Create, read, update, and delete items (CRUD for items)",
                 "Create, read, update, and delete categories (CRUD for categories)",
+                "Create, read, update, and delete rooms (CRUD for rooms)",
                 "Create, read, update, and delete users (CRUD for users)",
                 "View activity logs",
             ]
@@ -48,8 +50,10 @@ export function Breadcrumbs({ breadcrumbs }: { breadcrumbs: BreadcrumbItemType[]
             capabilities: [
                 "View dashboard",
                 "Export items",
-                "Create, read, update items (CRUD for items)",
-                "Create, read, update categories (CRUD for categories)",
+                "Manage transactions",
+                "Create, read, update items (CRU for items)",
+                "Create, read, update categories (CRU for categories)",
+                "Create, read, update rooms (CRU for rooms)",
             ]
         },
         viewer: {
@@ -61,6 +65,7 @@ export function Breadcrumbs({ breadcrumbs }: { breadcrumbs: BreadcrumbItemType[]
                 "Export items",
                 "Read items",
                 "Read categories",
+                "Read rooms",
             ]
         }
     };

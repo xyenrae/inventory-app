@@ -81,7 +81,7 @@ class DashboardController extends Controller
                     'id' => $activity->id,
                     'log_name' => $activity->log_name,
                     'description' => $activity->description,
-                    'created_at' => $activity->created_at->toDateTimeString(),
+                    'created_at' => $activity->created_at->toIso8601String(),
                     'causer' => $activity->causer ? [
                         'id' => $activity->causer->id,
                         'name' => $activity->causer->name,

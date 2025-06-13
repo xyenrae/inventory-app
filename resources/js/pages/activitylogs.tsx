@@ -425,7 +425,6 @@ export default function ActivityLogs({
                         <TableHead>Log Type</TableHead>
                         <TableHead>User</TableHead>
                         <TableHead>Timestamp</TableHead>
-                        <TableHead>Browser</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -465,9 +464,6 @@ export default function ActivityLogs({
                                 <Clock className="h-4 w-4 text-gray-400" />
                                 <span>{formatDateTime(log.created_at)}</span>
                               </div>
-                            </TableCell>
-                            <TableCell>
-                              {log.properties ? formatBrowserInfo(log.properties.user_agent) : 'Unknown'}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end space-x-2">
