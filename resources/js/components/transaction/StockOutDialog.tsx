@@ -199,7 +199,7 @@ export const StockOutDialog: React.FC<StockOutDialogProps> = ({
                             {stockOutForm.available_rooms?.length === 1 ? (
                                 // Tampilkan sebagai teks jika hanya 1 ruangan
                                 <div className="flex items-center gap-2 p-2 rounded-md border-input border">
-                                    <span className='text-sm ml-1'>{stockOutForm.available_rooms[0].display_name} ({stockOutForm.available_rooms[0].location})</span>
+                                    <span className='text-sm ml-1'>{stockOutForm.available_rooms[0].display_name}</span>
                                     <span className="text-sm text-muted-foreground">
                                         | Qty: {stockOutForm.available_rooms[0].current_quantity}
                                     </span>

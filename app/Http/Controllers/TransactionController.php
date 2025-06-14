@@ -557,7 +557,7 @@ class TransactionController extends Controller
         // Prepare transaction data
         $transactionData = [
             'item_id' => $validated['item_id'],
-            'type' => 'out', // Transfer is recorded as an 'out' transaction
+            'type' => 'transfer',
             'quantity' => $validated['quantity'],
             'from_room_id' => $validated['from_room_id'],
             'to_room_id' => $validated['to_room_id'],
@@ -568,20 +568,44 @@ class TransactionController extends Controller
         // Process within a database transaction
         DB::beginTransaction();
         try {
-            // Create outgoing transaction record
+            // Create transaction record
             $transaction = Transaction::create($transactionData);
 
-            // If transferring all items, update the room
+            // Handle inventory transfer
             if ($item->quantity == $validated['quantity']) {
+                // Transfer all items - just change room
                 $item->room_id = $validated['to_room_id'];
-            }
-            // If transferring partial items, we'd need a more complex solution to track split inventory
-            // For now, just transfer all items to the new room
-            else {
-                $item->room_id = $validated['to_room_id'];
-            }
+                $item->save();
+            } else {
+                // Partial transfer - need to split inventory
+                $transferQuantity = $validated['quantity'];
+                $remainingQuantity = $item->quantity - $transferQuantity;
 
-            $item->save();
+                // Reduce quantity in source room
+                $item->quantity = $remainingQuantity;
+                $item->save();
+
+                // Check if item already exists in destination room
+                $existingItemInDestination = Item::where('name', $item->name)
+                    ->where('room_id', $validated['to_room_id'])
+                    ->where('id', '!=', $item->id)
+                    ->first();
+
+                if ($existingItemInDestination) {
+                    // Add to existing item in destination room
+                    $existingItemInDestination->quantity += $transferQuantity;
+                    $existingItemInDestination->save();
+                } else {
+                    // Create new item record in destination room
+                    $newItem = $item->replicate();
+                    $newItem->room_id = $validated['to_room_id'];
+                    $newItem->quantity = $transferQuantity;
+                    $newItem->save();
+
+                    // Update transaction to reference the new item for destination
+                    $transaction->update(['destination_item_id' => $newItem->id]);
+                }
+            }
 
             DB::commit();
 
