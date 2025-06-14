@@ -328,10 +328,11 @@ export default function Inventory({
             <h1 className="text-2xl font-bold">Inventory Management</h1>
             <p className='text-muted-foreground'>Manage your items, and stock availability</p>
           </div>
-          <div className='grid grid-cols-2 gap-4 overflow-hidden items-center mt-6 md:mt-0'>
+          <div className={`grid gap-4 overflow-hidden items-center mt-6 md:mt-0 ${canCreateItems ? 'grid-cols-2' : 'grid-cols-1'
+            }`}>
             <ExportDropdown filters={filters} />
-            <div>
-              {canCreateItems && (
+            {canCreateItems && (
+              <div>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -462,8 +463,8 @@ export default function Inventory({
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 
